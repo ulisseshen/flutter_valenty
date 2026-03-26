@@ -1,0 +1,11 @@
+name: valenty_example
+description: Example project showing Valenty typed fluent DSL in action.
+publish_to: none
+
+environment:
+  sdk: ^3.5.0
+
+dev_dependencies:
+  test: ^1.25.0
+  valenty_dsl:
+    path: ../packages/valenty_dsl
