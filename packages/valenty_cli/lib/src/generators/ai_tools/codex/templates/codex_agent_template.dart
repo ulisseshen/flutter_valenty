@@ -65,6 +65,48 @@ When scaffolding a feature:
 - **When phase**: Read Given values via `ctx.get<T>('key')`, execute use case, store result
 - **Then phase**: Read results via `ctx.get<T>('key')`, assert with `expect()`
 
+### TestContext API
+
+```dart
+ctx.set<T>(String key, T value)   // Store a value
+ctx.get<T>(String key)            // Retrieve typed value (throws StateError if missing)
+ctx.has(String key)               // Check if key exists (returns bool)
+ctx.clear()                       // Clear all values
+```
+
+**Always specify type on get:** `ctx.get<Product>('product')` not `ctx.get('product')`
+
+**Guard optional values with ctx.has():**
+```dart
+final discount = ctx.has('couponDiscount')
+    ? ctx.get<double>('couponDiscount')
+    : 0.0;
+```
+
+### Async applyToContext()
+
+For async work (API calls, DB reads), return `Future<void>` instead of `void`.
+The `ScenarioRunner` detects futures and awaits them automatically.
+
+```dart
+@override
+Future<void> applyToContext(TestContext ctx) async {
+  final response = await apiClient.fetchOrder(id: _orderId);
+  ctx.set('order', response);
+}
+```
+
+Sync and async builders mix freely in the same chain — no extra wiring needed.
+
+### Common Mistakes
+
+- `ctx.get('key')` without type param — returns dynamic, causes cast errors
+- `ctx.get<T>('key')` on optional values without `ctx.has()` — crashes with StateError
+- Inventing `.hasX()` methods — always read actual builders first
+- Mismatched context keys between Given and When phases
+- Missing `.run()` at end — test never executes
+- `.given()` with parens — it's a getter: `.given`
+
 ### Key Pattern: Transition Getters
 
 - `.when` on DomainObjectBuilder<NeedsWhen>: `finalizeStep()` then `addStep<NeedsThen>()`
@@ -97,6 +139,38 @@ OrderScenario('should calculate base price as unit price times quantity')
     .run();
 ```
 
+## Parameterized Tests
+
+Use `parameterizedTest()` from `package:valenty_dsl` to run one scenario against
+multiple data sets without copy-paste:
+
+```dart
+parameterizedTest(
+  'should calculate correct base price',
+  [
+    [10.0, 2, 20.0],   // unitPrice, quantity, expectedBasePrice
+    [25.0, 4, 100.0],
+    [5.0, 10, 50.0],
+  ],
+  (values) {
+    final unitPrice = values[0] as double;
+    final quantity = values[1] as int;
+    final expected = values[2] as double;
+
+    OrderScenario('base price = $unitPrice x $quantity')
+        .given.product().withUnitPrice(unitPrice)
+        .when.placeOrder().withQuantity(quantity)
+        .then.order().hasBasePrice(expected)
+        .run();
+  },
+);
+```
+
+- Each inner list is one test case; a separate `test()` is created per case
+- Cast `params[i]` to the correct type
+- Comment the first case to label each position
+- Use string interpolation in the scenario description for traceability
+
 ## Rules
 
 - Never invent builder methods that do not exist in the code
@@ -104,4 +178,14 @@ OrderScenario('should calculate base price as unit price times quantity')
 - Always import `package:valenty_dsl/valenty_dsl.dart` in builder files
 - Always import `package:test/test.dart` in ThenBuilder and AssertionBuilder files
 - Invalid tests will not compile -- the compiler enforces correct structure
+
+## Onboarding
+
+When setting up Valenty (`valenty init`), scan the project first:
+1. Detect AI tools (`.claude/`, `.cursor/`, `.opencode/`, `AGENTS.md`)
+2. Find domain models in `lib/`
+3. Present findings and ask the user which AI clients and features to set up
+4. Execute setup commands based on user choices
+
+Always confirm with the user before proceeding.
 ''';

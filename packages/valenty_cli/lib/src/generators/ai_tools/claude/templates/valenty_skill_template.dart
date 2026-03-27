@@ -354,6 +354,43 @@ class <Feature>AssertionBuilder extends AssertionBuilder {
 }
 ```
 
+### TestContext API (Complete Reference)
+
+`TestContext` is a typed key-value store shared across all Given/When/Then steps.
+A fresh context is created for each scenario — no state leaks between tests.
+
+```dart
+ctx.set<T>(String key, T value)   // Store a value. Overwrites if key exists.
+ctx.get<T>(String key)            // Retrieve a value. Throws StateError if missing.
+ctx.has(String key)               // Check if a key exists. Returns bool.
+ctx.clear()                       // Clear all values (rarely needed).
+```
+
+**CRITICAL: Always specify the type parameter on `ctx.get<T>()`:**
+```dart
+// CORRECT:
+final product = ctx.get<Product>('product');
+final discount = ctx.get<double>('couponDiscount');
+
+// WRONG — will fail with type cast error:
+final product = ctx.get('product');  // Returns dynamic, not Product
+```
+
+**CRITICAL: Use `ctx.has()` for optional preconditions:**
+
+When a Given object is optional (e.g., a coupon may or may not be provided),
+the When builder MUST check before reading:
+
+```dart
+// CORRECT — handles both "with coupon" and "without coupon" scenarios:
+final discount = ctx.has('couponDiscount')
+    ? ctx.get<double>('couponDiscount')
+    : 0.0;
+
+// WRONG — crashes with StateError when no coupon was given:
+final discount = ctx.get<double>('couponDiscount');
+```
+
 ### How applyToContext() Wires Builders to Domain Models
 
 The `TestContext` is a key-value store shared across all steps. The flow is:
@@ -367,6 +404,10 @@ The `TestContext` is a key-value store shared across all steps. The flow is:
 2. **When phase**: Use case builders read Given values and store results:
    ```dart
    final product = ctx.get<Product>('product');
+   // Use ctx.has() for optional preconditions:
+   final discount = ctx.has('couponDiscount')
+       ? ctx.get<double>('couponDiscount')
+       : 0.0;
    final order = Order(quantity: _qty, basePrice: product.unitPrice * _qty, ...);
    ctx.set('order', order);
    ```
@@ -377,8 +418,126 @@ The `TestContext` is a key-value store shared across all steps. The flow is:
    expect(order.basePrice, equals(expected));
    ```
 
-Use consistent context keys. Name them after the domain concept:
-`'product'`, `'order'`, `'couponDiscount'`, `'user'`, `'payment'`, etc.
+### applyToContext() Pattern
+
+Follow this pattern for every `applyToContext()` implementation:
+
+```dart
+@override
+void applyToContext(TestContext ctx) {
+  // 1. READ: Get required preconditions (crash early if missing)
+  final product = ctx.get<Product>('product');
+
+  // 2. READ OPTIONAL: Guard optional preconditions with ctx.has()
+  final discount = ctx.has('couponDiscount')
+      ? ctx.get<double>('couponDiscount')
+      : 0.0;
+
+  // 3. EXECUTE: Run the domain logic
+  final basePrice = product.unitPrice * _quantity - discount;
+
+  // 4. WRITE: Store the result with a descriptive key
+  ctx.set('order', Order(quantity: _quantity, basePrice: basePrice));
+}
+```
+
+### Async applyToContext() Pattern
+
+When a builder step needs to perform async work (API calls, database reads, file I/O),
+override `applyToContext()` as `Future<void>` instead of `void`. The `ScenarioRunner`
+automatically detects `Future` return values and awaits them — no extra wiring needed.
+
+```dart
+@override
+Future<void> applyToContext(TestContext ctx) async {
+  // Async operations are fully supported — the runner awaits them.
+  final response = await apiClient.fetchOrder(id: _orderId);
+  ctx.set('order', response);
+}
+```
+
+**How it works:** `ScenarioRunner` calls each step's action and checks
+`if (result is Future) { await result; }`. This means both sync and async
+`applyToContext()` methods work transparently in the same scenario chain.
+
+**When to use async:**
+- Calling REST APIs, gRPC services, or GraphQL endpoints
+- Reading from databases (Firestore, SQLite, Hive, etc.)
+- File system operations or process execution
+- Any I/O-bound operation that returns a `Future`
+
+**Full async example (When phase — API call + DB read):**
+
+```dart
+class PlaceOrderWhenBuilder extends DomainObjectBuilder<NeedsThen> {
+  PlaceOrderWhenBuilder(ScenarioBuilder<NeedsThen> scenario)
+      : super(scenario, StepPhase.when);
+
+  int _quantity = 1;
+
+  PlaceOrderWhenBuilder withQuantity(int quantity) {
+    _quantity = quantity;
+    return this;
+  }
+
+  @override
+  Future<void> applyToContext(TestContext ctx) async {
+    final product = ctx.get<Product>('product');
+
+    // Call an API or service — the runner awaits this automatically
+    final order = await orderService.place(
+      productId: product.id,
+      quantity: _quantity,
+    );
+
+    ctx.set('order', order);
+  }
+
+  // ... .then getter unchanged
+}
+```
+
+**Key points:**
+- The method signature changes from `void` to `Future<void>` and adds `async`
+- All `.withX()` methods, `.when`/`.then`/`.and` getters stay exactly the same
+- You can mix sync and async builders freely in the same scenario chain
+- Tests remain identical — the fluent API and `.run()` are unaffected
+
+**Review checklist:**
+- [ ] Every `ctx.get<T>()` has an explicit type parameter
+- [ ] Optional values are guarded with `ctx.has()` before `ctx.get()`
+- [ ] Context keys used in `ctx.get()` match keys set by earlier phases
+- [ ] Result is stored via `ctx.set()` with a key that Then builders expect
+
+### Common LLM Mistakes to Avoid
+
+```dart
+// MISTAKE 1: Missing ctx.has() check for optional values
+final discount = ctx.get<double>('couponDiscount');  // CRASHES if no coupon!
+// FIX: Always guard optional values:
+final discount = ctx.has('couponDiscount') ? ctx.get<double>('couponDiscount') : 0.0;
+
+// MISTAKE 2: Forgetting type parameter on ctx.get()
+final product = ctx.get('product');  // Returns dynamic, not Product!
+// FIX: Always specify the type:
+final product = ctx.get<Product>('product');
+
+// MISTAKE 3: Inventing methods that don't exist on builders
+.then.order().hasTotal(100)  // hasTotal() doesn't exist!
+// FIX: ALWAYS read the actual builder files first. Only use methods that exist.
+
+// MISTAKE 4: Using wrong context key name
+ctx.set('prod', product);     // In Given
+ctx.get<Product>('product');  // In When — CRASH! Keys must match exactly.
+
+// MISTAKE 5: Forgetting .run() at the end
+OrderScenario('test').given.product()...then.shouldSucceed();  // Test never runs!
+// FIX: Always end with .run()
+
+// MISTAKE 6: Using parentheses on .given, .when, .then
+.given().product()  // WRONG — .given is a getter, not a method
+.given.product()    // CORRECT
+```
 
 ### Scaffolding Checklist
 
@@ -833,6 +992,95 @@ void main() {
 
 If the scenario references a domain concept with no builder, tell the user you
 need to scaffold it first. Offer to create the builder files, then write the tests.
+
+## Parameterized Tests
+
+Use `parameterizedTest()` from `package:valenty_dsl` to run the same Valenty scenario
+against multiple input/output combinations. This eliminates copy-paste when a single
+business rule needs verification across several data points.
+
+### How parameterizedTest() Works
+
+```dart
+import 'package:valenty_dsl/valenty_dsl.dart';
+
+parameterizedTest(
+  'test description',
+  [
+    [arg1, arg2, expected],  // case 1
+    [arg1, arg2, expected],  // case 2
+  ],
+  (params) {
+    final a = params[0] as Type;
+    final b = params[1] as Type;
+    final expected = params[2] as Type;
+    // ... test body using a, b, expected
+  },
+);
+```
+
+Each inner list is a test case. The function creates a separate `package:test` test
+for every case, labeled `'test description [case N: [values]]'`.
+
+### Using parameterizedTest() with Valenty Scenarios
+
+Combine parameterized data with the fluent DSL to test a business rule across
+multiple value combinations in a single, readable block:
+
+```dart
+import 'package:test/test.dart';
+import 'package:valenty_dsl/valenty_dsl.dart';
+
+import '../order_scenario.dart';
+
+void main() {
+  group('Order Pricing - parameterized', () {
+    parameterizedTest(
+      'should calculate correct base price',
+      [
+        [10.0, 2, 20.0],   // unitPrice, quantity, expectedBasePrice
+        [25.0, 4, 100.0],
+        [5.0, 10, 50.0],
+      ],
+      (values) {
+        final unitPrice = values[0] as double;
+        final quantity = values[1] as int;
+        final expected = values[2] as double;
+
+        OrderScenario('base price = $unitPrice x $quantity')
+            .given
+            .product()
+            .withUnitPrice(unitPrice)
+            .when
+            .placeOrder()
+            .withQuantity(quantity)
+            .then
+            .order()
+            .hasBasePrice(expected)
+            .run();
+      },
+    );
+  });
+}
+```
+
+### When to Use parameterizedTest()
+
+- **Boundary testing**: verify behavior at edge values (zero, negative, max)
+- **Pricing rules**: same formula, many input/output pairs
+- **Validation rules**: valid vs invalid inputs across a matrix
+- **Discount tiers**: multiple thresholds producing different results
+
+### Rules for parameterizedTest()
+
+- Import `package:valenty_dsl/valenty_dsl.dart` (it re-exports `parameterizedTest`)
+- Each inner list must have the same length and positional meaning
+- Cast each `params[i]` to the correct type (`as double`, `as int`, etc.)
+- Include a comment after the first case labeling each position
+- Use string interpolation in the scenario description to identify which case failed
+- Always end the scenario chain with `.run()` inside the callback
+
+---
 
 ## Compile-Time Safety
 

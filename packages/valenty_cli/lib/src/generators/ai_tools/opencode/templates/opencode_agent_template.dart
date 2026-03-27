@@ -53,6 +53,38 @@ test/valenty/features/<feature>/
 - `applyToContext()` reads Given values via `ctx.get()`, executes use case, stores result
 - `.then` getter: `finalizeStep()` then `addStep<ReadyToRun>()`, return ThenBuilder
 
+### TestContext API
+
+```dart
+ctx.set<T>(String key, T value)   // Store value
+ctx.get<T>(String key)            // Get typed value (StateError if missing)
+ctx.has(String key)               // Check if key exists
+```
+
+**Always use type param:** `ctx.get<Product>('product')` not `ctx.get('product')`
+**Guard optional values:** `ctx.has('key') ? ctx.get<T>('key') : default`
+
+### Async applyToContext()
+
+For async work (API calls, DB reads), return `Future<void>` instead of `void`.
+The runner awaits futures automatically.
+
+```dart
+@override
+Future<void> applyToContext(TestContext ctx) async {
+  final response = await apiClient.fetchOrder(id: _orderId);
+  ctx.set('order', response);
+}
+```
+
+### Common Mistakes
+
+- Missing type on `ctx.get()` — cast errors
+- Missing `ctx.has()` on optional values — StateError crash
+- Inventing builder methods — read actual files first
+- `.given()` with parens — it's a getter: `.given`
+- Missing `.run()` — test never executes
+
 ## Writing Tests
 
 1. Always read existing builders first
@@ -78,10 +110,51 @@ OrderScenario('should calculate base price as unit price times quantity')
     .run();
 ```
 
+## Parameterized Tests
+
+Use `parameterizedTest()` from `package:valenty_dsl` to run one scenario against
+multiple data sets without copy-paste:
+
+```dart
+parameterizedTest(
+  'should calculate correct base price',
+  [
+    [10.0, 2, 20.0],   // unitPrice, quantity, expectedBasePrice
+    [25.0, 4, 100.0],
+    [5.0, 10, 50.0],
+  ],
+  (values) {
+    final unitPrice = values[0] as double;
+    final quantity = values[1] as int;
+    final expected = values[2] as double;
+
+    OrderScenario('base price = $unitPrice x $quantity')
+        .given.product().withUnitPrice(unitPrice)
+        .when.placeOrder().withQuantity(quantity)
+        .then.order().hasBasePrice(expected)
+        .run();
+  },
+);
+```
+
+- Each inner list is one test case; a separate `test()` is created per case
+- Cast `params[i]` to the correct type
+- Comment the first case to label each position
+
 ## Rules
 
 - Never invent builder methods that do not exist
 - `.given`, `.when`, `.then` are getters, not method calls
 - Always import `package:valenty_dsl/valenty_dsl.dart`
 - Always import `package:test/test.dart` in assertion files
+
+## Onboarding
+
+When setting up Valenty (`valenty init`), scan the project first:
+1. Detect AI tools (`.claude/`, `.cursor/`, `.opencode/`, `AGENTS.md`)
+2. Find domain models in `lib/`
+3. Present findings and ask the user which AI clients and features to set up
+4. Execute setup commands based on user choices
+
+Always confirm with the user before proceeding.
 ''';
