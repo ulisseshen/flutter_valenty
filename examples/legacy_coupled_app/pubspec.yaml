@@ -1,0 +1,15 @@
+name: legacy_coupled_app_example
+description: Valenty heavily coupled legacy app — business logic in widgets, data in domain, God singletons
+publish_to: none
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  meta: ^1.12.0
+
+dev_dependencies:
+  lints: ^5.1.0
+  test: ^1.25.0
+  valenty_dsl:
+    path: ../../packages/valenty_dsl
