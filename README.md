@@ -39,9 +39,7 @@ Valenty is built on the **Modern Test Pyramid** by [Valentina Jemuovic](https://
 > [Modern Test Pyramid - Illustrated](https://journal.optivem.com/p/modern-test-pyramid-illustrated) |
 > [TDD Cycles](https://journal.optivem.com/p/tdd-cycles)
 
-**Valenty is primarily a Component Test tool for Flutter apps.** It fills the gap where production bugs live -- between unit tests (which test math, not features) and E2E tests (which are slow and fragile). Component tests verify that your Flutter app works correctly in isolation, with backend APIs, Firebase, databases, and other external systems replaced by fakes.
-
-Valenty also supports System Level Acceptance Tests for teams that need cross-component business behavior verification.
+**Valenty uses the acceptance test format (Given/When/Then) to write component tests for Flutter apps.** The same typed fluent DSL works at every level of the Modern Test Pyramid -- what changes is not the format, but the scope. At the System Level, your builders talk to real systems. At the Component Level, external dependencies (Firebase, Dio, databases) are replaced by fakes. The DSL stays the same.
 
 > _"Your unit tests pass. Your E2E tests pass. And yet, the tax calculation was wrong. [...] There's a massive gap between 'all my unit tests pass' and 'this feature actually works as the customer expects.' That gap is where your production bugs live."_
 > -- [Valentina Jemuovic, Optivem Journal](https://journal.optivem.com)
@@ -58,11 +56,13 @@ Flutter apps typically have many external dependencies (Firebase, Dio, SharedPre
 
 **Component Tests fix this.** They test the entire Flutter app in isolation -- with real business logic running, but external systems (backend APIs, Firebase, databases) replaced by fakes. They run in seconds, not minutes. They catch the bugs that unit tests miss.
 
-| Modern Pyramid Layer | What it tests | Flutter ROI |
+| Modern Pyramid Layer | What changes | Same DSL? |
 |---|---|---|
-| **Component Tests** (Valenty -- primary focus) | Flutter app in isolation, externals faked | Fast feedback (seconds), catches feature bugs |
-| **Contract Tests** | Fakes match real APIs | Prevents integration surprises at deployment |
-| **Acceptance Tests** (Valenty -- also supported) | Business behavior across components | Catches cross-team integration bugs |
+| **System Level** (Acceptance Tests) | Builders talk to real or stubbed external systems | Yes -- same Given/When/Then |
+| **Component Level** (Component Tests) | External dependencies replaced by fakes | Yes -- same Given/When/Then |
+| **Contract Tests** | Fakes validated against real APIs | Verifies fake correctness |
+
+Valenty's typed fluent DSL is the **acceptance test format applied at the component level** -- the primary use case for Flutter apps.
 
 ### Component Test Pyramids
 
