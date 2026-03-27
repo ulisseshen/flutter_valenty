@@ -302,6 +302,12 @@
       "languageVersion": "3.5"
     },
     {
+      "name": "valenty_dsl",
+      "rootUri": "../../valenty_dsl",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
+    },
+    {
       "name": "vm_service",
       "rootUri": "file:///Users/teste/.pub-cache/hosted/pub.dev/vm_service-15.0.2",
       "packageUri": "lib/",

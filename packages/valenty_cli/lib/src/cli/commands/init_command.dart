@@ -97,7 +97,11 @@ class InitCommand extends Command<void> {
 
       // ── Step 6: Generate AI skill files ─────────────────────────────
       final skillProgress = _logger.progress('Generating AI skill files');
-      await _generateSkills(tools, projectPath);
+      await _generateSkills(
+        tools,
+        projectPath,
+        isFlutter: projectInfo.hasFlutter,
+      );
       skillProgress.complete('AI skill files generated');
 
       // ── Step 7: Run pub get ─────────────────────────────────────────
@@ -170,10 +174,14 @@ class InitCommand extends Command<void> {
   /// Generate AI skill files for detected (or default) tools.
   Future<void> _generateSkills(
     List<AiToolType> tools,
-    String projectPath,
-  ) async {
+    String projectPath, {
+    bool isFlutter = false,
+  }) async {
     // Always generate Claude skill (most common and comprehensive)
-    await ClaudeSkillGenerator(logger: _logger).generate(projectPath);
+    await ClaudeSkillGenerator(logger: _logger).generate(
+      projectPath,
+      isFlutter: isFlutter,
+    );
 
     // Generate for each detected tool
     for (final tool in tools) {
@@ -182,16 +190,25 @@ class InitCommand extends Command<void> {
           // Already generated above
           break;
         case AiToolType.cursor:
-          await CursorRuleGenerator(logger: _logger).generate(projectPath);
+          await CursorRuleGenerator(logger: _logger).generate(
+            projectPath,
+            isFlutter: isFlutter,
+          );
         case AiToolType.codex:
           // AGENTS.md covers this
           break;
         case AiToolType.openCode:
-          await OpenCodeAgentGenerator(logger: _logger).generate(projectPath);
+          await OpenCodeAgentGenerator(logger: _logger).generate(
+            projectPath,
+            isFlutter: isFlutter,
+          );
       }
     }
 
     // Always generate AGENTS.md (portable, works with Codex and OpenCode)
-    await CodexAgentGenerator(logger: _logger).generate(projectPath);
+    await CodexAgentGenerator(logger: _logger).generate(
+      projectPath,
+      isFlutter: isFlutter,
+    );
   }
 }

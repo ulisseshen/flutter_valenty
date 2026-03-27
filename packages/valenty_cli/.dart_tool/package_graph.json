@@ -18,6 +18,15 @@
       ],
       "devDependencies": [
         "lints",
+        "test",
+        "valenty_dsl"
+      ]
+    },
+    {
+      "name": "valenty_dsl",
+      "version": "0.1.0",
+      "dependencies": [
+        "meta",
         "test"
       ]
     },

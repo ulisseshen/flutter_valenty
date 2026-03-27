@@ -2,13 +2,18 @@ import 'dart:io';
 
 import 'package:mason_logger/mason_logger.dart';
 import 'package:path/path.dart' as p;
+import 'package:yaml/yaml.dart';
 
 import '../../analyzers/model_analyzer.dart';
 import 'templates/assertion_builder_template.dart' as assertion_tpl;
+import 'templates/backend_stub_template.dart' as backend_stub_tpl;
 import 'templates/domain_object_template.dart' as domain_tpl;
 import 'templates/given_builder_template.dart' as given_tpl;
 import 'templates/scenario_template.dart' as scenario_tpl;
+import 'templates/system_dsl_template.dart' as system_dsl_tpl;
 import 'templates/then_builder_template.dart' as then_tpl;
+import 'templates/ui_driver_template.dart' as ui_driver_tpl;
+import 'templates/valentytest_helper_template.dart' as valentytest_helper_tpl;
 import 'templates/when_builder_template.dart' as when_tpl;
 
 /// Orchestrates the generation of the full builder tree for a feature.
@@ -62,6 +67,12 @@ class ScaffoldGenerator {
     if (models.isEmpty) {
       _logger.err('No models found. Cannot generate scaffold.');
       return;
+    }
+
+    // Detect if the project is Flutter
+    final isFlutter = _detectFlutterProject(projectPath);
+    if (isFlutter) {
+      _logger.info('Detected Flutter project — generating valentyTest files.');
     }
 
     _logger.info('');
@@ -195,12 +206,72 @@ class ScaffoldGenerator {
       assertionProgress.complete('${model.className}AssertionBuilder');
     }
 
+    // ── Generate valentyTest files (Flutter projects only) ────────────
+    if (isFlutter) {
+      final dslDir = p.join(outputDir, 'dsl');
+      final scenariosDir = p.join(outputDir, 'scenarios');
+
+      await Directory(dslDir).create(recursive: true);
+      await Directory(scenariosDir).create(recursive: true);
+
+      // valentyTest helper
+      final helperProgress = _logger.progress(
+        'Generating valentyTest helper',
+      );
+      await _writeFile(
+        p.join(outputDir, '${featureSnake}_test_helper.dart'),
+        valentytest_helper_tpl.generateValentyTestHelper(
+          featurePascal: featurePascal,
+          featureSnake: featureSnake,
+        ),
+      );
+      helperProgress.complete('$featurePascal valentyTest helper');
+
+      // SystemDsl
+      final systemDslProgress = _logger.progress('Generating SystemDsl');
+      await _writeFile(
+        p.join(dslDir, '${featureSnake}_system_dsl.dart'),
+        system_dsl_tpl.generateSystemDsl(
+          featurePascal: featurePascal,
+          featureSnake: featureSnake,
+        ),
+      );
+      systemDslProgress.complete('${featurePascal}SystemDsl');
+
+      // BackendStub
+      final backendStubProgress = _logger.progress(
+        'Generating BackendStub',
+      );
+      await _writeFile(
+        p.join(dslDir, '${featureSnake}_backend_stub.dart'),
+        backend_stub_tpl.generateBackendStub(
+          featurePascal: featurePascal,
+          featureSnake: featureSnake,
+        ),
+      );
+      backendStubProgress.complete('${featurePascal}BackendStub');
+
+      // UiDriver
+      final uiDriverProgress = _logger.progress('Generating UiDriver');
+      await _writeFile(
+        p.join(dslDir, '${featureSnake}_ui_driver.dart'),
+        ui_driver_tpl.generateUiDriver(
+          featurePascal: featurePascal,
+          featureSnake: featureSnake,
+        ),
+      );
+      uiDriverProgress.complete('${featurePascal}UiDriver');
+    }
+
     _logger.info('');
     _logger.success('Scaffold generated successfully!');
     _logger.info('');
     _logger.info('Generated files:');
     _logger.info('  $outputDir/');
     _logger.info('    ${featureSnake}_scenario.dart');
+    if (isFlutter) {
+      _logger.info('    ${featureSnake}_test_helper.dart');
+    }
     _logger.info('    builders/');
     _logger.info('      given/');
     _logger.info('        ${featureSnake}_given_builder.dart');
@@ -215,17 +286,45 @@ class ScaffoldGenerator {
     for (final model in models) {
       _logger.info('        ${model.snakeCase}_assertion_builder.dart');
     }
+    if (isFlutter) {
+      _logger.info('    dsl/');
+      _logger.info('      ${featureSnake}_system_dsl.dart');
+      _logger.info('      ${featureSnake}_backend_stub.dart');
+      _logger.info('      ${featureSnake}_ui_driver.dart');
+      _logger.info('    scenarios/');
+      _logger.info('      (empty — create your test files here)');
+    }
     _logger.info('');
     _logger.info('Next steps:');
-    _logger.info(
-      '  1. Implement applyToContext() in the action builder '
-      '(builders/when/${featureSnake}_action_builder.dart)',
-    );
-    _logger.info(
-      '  2. Implement shouldSucceed()/shouldFail() assertions '
-      '(builders/then/${featureSnake}_then_builder.dart)',
-    );
-    _logger.info('  3. Write your first test using ${featurePascal}Scenario!');
+    if (isFlutter) {
+      _logger.info(
+        '  1. Fill in the UiDriver methods '
+        '(dsl/${featureSnake}_ui_driver.dart)',
+      );
+      _logger.info(
+        '  2. Configure backend stubs '
+        '(dsl/${featureSnake}_backend_stub.dart)',
+      );
+      _logger.info(
+        '  3. Add domain actions to the SystemDsl '
+        '(dsl/${featureSnake}_system_dsl.dart)',
+      );
+      _logger.info(
+        '  4. Write your first test in scenarios/ using valentyTest!',
+      );
+    } else {
+      _logger.info(
+        '  1. Implement applyToContext() in the action builder '
+        '(builders/when/${featureSnake}_action_builder.dart)',
+      );
+      _logger.info(
+        '  2. Implement shouldSucceed()/shouldFail() assertions '
+        '(builders/then/${featureSnake}_then_builder.dart)',
+      );
+      _logger.info(
+        '  3. Write your first test using ${featurePascal}Scenario!',
+      );
+    }
   }
 
   /// Write content to a file, creating parent directories as needed.
@@ -249,6 +348,27 @@ class ScaffoldGenerator {
         )
         .replaceFirst(RegExp(r'^_'), '')
         .replaceAll(RegExp(r'_+'), '_');
+  }
+
+  /// Detect whether the project at [projectPath] is a Flutter project
+  /// by checking for `flutter` in pubspec.yaml dependencies.
+  bool _detectFlutterProject(String projectPath) {
+    try {
+      final pubspecFile = File(p.join(projectPath, 'pubspec.yaml'));
+      if (!pubspecFile.existsSync()) return false;
+
+      final content = pubspecFile.readAsStringSync();
+      final yaml = loadYaml(content) as YamlMap;
+
+      if (yaml['dependencies'] is YamlMap) {
+        final deps = yaml['dependencies'] as YamlMap;
+        return deps.containsKey('flutter');
+      }
+
+      return false;
+    } catch (_) {
+      return false;
+    }
   }
 
   /// Convert a string to PascalCase.

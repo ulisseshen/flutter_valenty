@@ -23,6 +23,7 @@ class OpenCodeAgentGenerator {
   Future<void> generate(
     String projectPath, {
     ProjectSnapshot? snapshot,
+    bool isFlutter = false,
   }) async {
     final agentsDir = Directory(
       p.join(projectPath, '.opencode', 'agents'),
@@ -32,8 +33,10 @@ class OpenCodeAgentGenerator {
       agentsDir.createSync(recursive: true);
     }
 
-    final content = openCodeAgentTemplate +
-        renderProjectSnapshotSection(snapshot);
+    final projectTypeHeader = _buildProjectTypeHeader(isFlutter);
+    final content = projectTypeHeader +
+        openCodeAgentTemplate +
+        renderProjectSnapshotSection(snapshot, isFlutter: isFlutter);
 
     final agentFile = File(p.join(agentsDir.path, 'valenty-test-writer.md'));
     agentFile.writeAsStringSync(content);
@@ -42,5 +45,16 @@ class OpenCodeAgentGenerator {
       '${lightGreen.wrap('✓')} Generated OpenCode agent: '
       '.opencode/agents/valenty-test-writer.md',
     );
+  }
+
+  String _buildProjectTypeHeader(bool isFlutter) {
+    if (isFlutter) {
+      return '# Project type: Flutter\n'
+          '# Primary approach: valentyTest (UI-first component testing)\n'
+          '# See Part A below for the recommended workflow.\n\n';
+    }
+    return '# Project type: Dart\n'
+        '# Primary approach: Typed builders (compile-time safe DSL)\n'
+        '# See Part B below for the recommended workflow.\n\n';
   }
 }

@@ -23,6 +23,7 @@ class CursorRuleGenerator {
   Future<void> generate(
     String projectPath, {
     ProjectSnapshot? snapshot,
+    bool isFlutter = false,
   }) async {
     final rulesDir = Directory(
       p.join(projectPath, '.cursor', 'rules'),
@@ -32,8 +33,10 @@ class CursorRuleGenerator {
       rulesDir.createSync(recursive: true);
     }
 
-    final content = cursorRuleTemplate +
-        renderProjectSnapshotSection(snapshot);
+    final projectTypeHeader = _buildProjectTypeHeader(isFlutter);
+    final content = projectTypeHeader +
+        cursorRuleTemplate +
+        renderProjectSnapshotSection(snapshot, isFlutter: isFlutter);
 
     final ruleFile = File(p.join(rulesDir.path, 'valenty.mdc'));
     ruleFile.writeAsStringSync(content);
@@ -42,5 +45,16 @@ class CursorRuleGenerator {
       '${lightGreen.wrap('✓')} Generated Cursor rule: '
       '.cursor/rules/valenty.mdc',
     );
+  }
+
+  String _buildProjectTypeHeader(bool isFlutter) {
+    if (isFlutter) {
+      return '# Project type: Flutter\n'
+          '# Primary approach: valentyTest (UI-first component testing)\n'
+          '# See Part A below for the recommended workflow.\n\n';
+    }
+    return '# Project type: Dart\n'
+        '# Primary approach: Typed builders (compile-time safe DSL)\n'
+        '# See Part B below for the recommended workflow.\n\n';
   }
 }

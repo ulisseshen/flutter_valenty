@@ -21,9 +21,13 @@ class ClaudeSkillGenerator {
   ///
   /// If [snapshot] is provided, appends a dynamic "Current Project State"
   /// section with discovered features, builders, and domain models.
+  ///
+  /// If [isFlutter] is true, a header comment is added indicating
+  /// valentyTest is the primary approach for this project.
   Future<void> generate(
     String projectPath, {
     ProjectSnapshot? snapshot,
+    bool isFlutter = false,
   }) async {
     final skillDir = Directory(
       p.join(projectPath, '.claude', 'skills', 'valenty-test-writer'),
@@ -33,8 +37,10 @@ class ClaudeSkillGenerator {
       skillDir.createSync(recursive: true);
     }
 
-    final content = valentySkillTemplate +
-        renderProjectSnapshotSection(snapshot);
+    final projectTypeHeader = _buildProjectTypeHeader(isFlutter);
+    final content = projectTypeHeader +
+        valentySkillTemplate +
+        renderProjectSnapshotSection(snapshot, isFlutter: isFlutter);
 
     final skillFile = File(p.join(skillDir.path, 'SKILL.md'));
     skillFile.writeAsStringSync(content);
@@ -60,5 +66,16 @@ class ClaudeSkillGenerator {
       '${lightGreen.wrap('✓')} Generated Claude skill: '
       '.claude/skills/valenty-onboarding/SKILL.md',
     );
+  }
+
+  String _buildProjectTypeHeader(bool isFlutter) {
+    if (isFlutter) {
+      return '# Project type: Flutter\n'
+          '# Primary approach: valentyTest (UI-first component testing)\n'
+          '# See Part A below for the recommended workflow.\n\n';
+    }
+    return '# Project type: Dart\n'
+        '# Primary approach: Typed builders (compile-time safe DSL)\n'
+        '# See Part B below for the recommended workflow.\n\n';
   }
 }

@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:mason_logger/mason_logger.dart';
+import 'package:path/path.dart' as p;
+import 'package:yaml/yaml.dart';
 
 import '../../analyzers/project_introspector.dart';
 import '../../detection/ai_tool_detector.dart';
@@ -60,6 +62,9 @@ class _SkillsSubCommand extends Command<void> {
       snapshot = null;
     }
 
+    // Detect project type (Flutter vs pure Dart)
+    final isFlutter = _detectFlutterProject(projectPath);
+
     final detecting = _logger.progress('Detecting AI tools');
     final detector = AiToolDetector();
     final tools = detector.detect(projectPath);
@@ -75,8 +80,13 @@ class _SkillsSubCommand extends Command<void> {
         AiToolType.claude,
         projectPath,
         snapshot: snapshot,
+        isFlutter: isFlutter,
       );
-      await _generateAgentsMd(projectPath, snapshot: snapshot);
+      await _generateAgentsMd(
+        projectPath,
+        snapshot: snapshot,
+        isFlutter: isFlutter,
+      );
       _logger.success('Generated default skill files.');
       return;
     }
@@ -87,11 +97,20 @@ class _SkillsSubCommand extends Command<void> {
     );
 
     for (final tool in tools) {
-      await _generateForTool(tool, projectPath, snapshot: snapshot);
+      await _generateForTool(
+        tool,
+        projectPath,
+        snapshot: snapshot,
+        isFlutter: isFlutter,
+      );
     }
 
     // Always generate AGENTS.md (portable, works with Codex and OpenCode)
-    await _generateAgentsMd(projectPath, snapshot: snapshot);
+    await _generateAgentsMd(
+      projectPath,
+      snapshot: snapshot,
+      isFlutter: isFlutter,
+    );
 
     _logger.success(
       'Skill generation complete. '
@@ -103,17 +122,20 @@ class _SkillsSubCommand extends Command<void> {
     AiToolType tool,
     String projectPath, {
     ProjectSnapshot? snapshot,
+    bool isFlutter = false,
   }) async {
     switch (tool) {
       case AiToolType.claude:
         await ClaudeSkillGenerator(logger: _logger).generate(
           projectPath,
           snapshot: snapshot,
+          isFlutter: isFlutter,
         );
       case AiToolType.cursor:
         await CursorRuleGenerator(logger: _logger).generate(
           projectPath,
           snapshot: snapshot,
+          isFlutter: isFlutter,
         );
       case AiToolType.codex:
         // AGENTS.md is generated separately (always)
@@ -122,6 +144,7 @@ class _SkillsSubCommand extends Command<void> {
         await OpenCodeAgentGenerator(logger: _logger).generate(
           projectPath,
           snapshot: snapshot,
+          isFlutter: isFlutter,
         );
     }
   }
@@ -129,10 +152,33 @@ class _SkillsSubCommand extends Command<void> {
   Future<void> _generateAgentsMd(
     String projectPath, {
     ProjectSnapshot? snapshot,
+    bool isFlutter = false,
   }) async {
     await CodexAgentGenerator(logger: _logger).generate(
       projectPath,
       snapshot: snapshot,
+      isFlutter: isFlutter,
     );
+  }
+
+  /// Detect whether the project is a Flutter project by checking
+  /// for `flutter` in pubspec.yaml dependencies.
+  bool _detectFlutterProject(String projectPath) {
+    try {
+      final pubspecFile = File(p.join(projectPath, 'pubspec.yaml'));
+      if (!pubspecFile.existsSync()) return false;
+
+      final content = pubspecFile.readAsStringSync();
+      final yaml = loadYaml(content) as YamlMap;
+
+      if (yaml['dependencies'] is YamlMap) {
+        final deps = yaml['dependencies'] as YamlMap;
+        return deps.containsKey('flutter');
+      }
+
+      return false;
+    } catch (_) {
+      return false;
+    }
   }
 }
