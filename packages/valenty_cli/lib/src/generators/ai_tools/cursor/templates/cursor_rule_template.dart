@@ -4,48 +4,197 @@
 /// in the user's project when they run `valenty init` or `valenty generate skills`.
 const cursorRuleTemplate = r'''---
 description: >
-  Scaffold typed fluent DSL builders for features and generate compile-time safe
-  acceptance tests from QA scenarios using Valenty's typed fluent DSL.
+  Generate UI-first component tests using valentyTest (primary) or typed fluent
+  DSL builders for logic-only tests (secondary) using Valenty.
 globs:
   - test/valenty/**/*.dart
   - test/**/*_test.dart
 alwaysApply: false
 ---
 
-# Valenty: Typed Fluent DSL for Acceptance Testing
+# Valenty: UI-First Component Testing
 
-You scaffold **typed fluent DSL builders** and write **compile-time safe acceptance
-tests** using the Valenty DSL (`package:valenty_dsl`).
+You generate **UI-first component tests** using `valentyTest` (primary) and can
+scaffold **typed fluent DSL builders** for logic-only tests (secondary).
 
-## Architecture
+**Always default to valentyTest for Flutter apps.**
+
+## IMPORTANT: Always prefer valentyTest (UI-first)
+
+When asked to write tests, DEFAULT to valentyTest with full app setup.
+
+If the user explicitly asks for logic-only tests (no UI), WARN them:
+
+"Testing without the UI misses widget rendering errors, navigation bugs, state
+management issues, form validation, and layout problems — the bugs that reach
+production most often. Recommended: use valentyTest with full app setup."
+
+---
+
+## Part A: valentyTest (Component Tests with UI) — PRIMARY
+
+### Architecture
+
+```
+valentyTest('description', setup: ..., body: ...)
+    |
+    +-- BackendStubDsl       <-- configure fakes (setup parameter)
+    |   +-- @visibleForTesting factory overrides
+    |
+    +-- SystemDsl            <-- domain-language user actions
+    |   +-- UiDriver         <-- wraps WidgetTester
+    |
+    +-- testWidgets          <-- Flutter test framework
+```
+
+### What AI generates per feature
+
+```
+test/valenty/
+├── expense_test_helper.dart          # valentyTest() wrapper
+├── dsl/
+│   ├── expense_system_dsl.dart       # Domain actions: openApp(), addExpense()
+│   ├── expense_backend_stub.dart     # Stub config: stubExpenses(), stubBudget()
+│   └── expense_ui_driver.dart        # Widget interactions: tap, enter, verify
+└── scenarios/
+    └── add_expense_test.dart         # Test scenarios using valentyTest
+```
+
+### valentyTest wrapper pattern
+
+```dart
+// test/valenty/expense_test_helper.dart
+void valentyTest(
+  String description, {
+  void Function(ExpenseBackendStub backend)? setup,
+  required Future<void> Function(
+    ExpenseSystemDsl system,
+    ExpenseBackendStub backend,
+  ) body,
+}) {
+  testWidgets(description, (tester) async {
+    final backend = ExpenseBackendStub();
+    if (setup != null) setup(backend);
+    await backend.apply();
+    try {
+      final driver = ExpenseUiDriver(tester);
+      final system = ExpenseSystemDsl(driver);
+      await body(system, backend);
+    } finally {
+      await backend.restore();
+    }
+  });
+}
+```
+
+### BackendStubDsl pattern
+
+```dart
+class ExpenseBackendStub extends BackendStubDsl {
+  final List<Expense> _expenses = [];
+
+  void stubExpenses(List<Expense> expenses) => _expenses.addAll(expenses);
+
+  @override
+  Future<void> apply() async {
+    ExpenseService.fetchExpensesOverride = () async => List.of(_expenses);
+  }
+
+  @override
+  Future<void> restore() async {
+    ExpenseService.resetForTesting();
+  }
+}
+```
+
+### SystemDsl pattern
+
+```dart
+class ExpenseSystemDsl extends SystemDsl {
+  ExpenseSystemDsl(this.driver);
+  final ExpenseUiDriver driver;
+
+  Future<void> openApp() async => driver.pumpApp();
+  Future<void> addExpense({required String desc, required String amount}) async {
+    await driver.enterDescription(desc);
+    await driver.enterAmount(amount);
+    await driver.tapSubmit();
+  }
+  void verifyTotal(String total) => driver.verifyText('Total: \$$total');
+}
+```
+
+### UiDriver pattern
+
+```dart
+class ExpenseUiDriver extends UiDriver {
+  ExpenseUiDriver(this.tester);
+  final WidgetTester tester;
+
+  Future<void> pumpApp() async {
+    await tester.pumpWidget(const MaterialApp(home: ExpenseListScreen()));
+    await tester.pumpAndSettle();
+  }
+  Future<void> tapSubmit() async {
+    await tester.tap(find.byKey(const Key('submitButton')));
+    await tester.pumpAndSettle();
+  }
+  void verifyText(String text) => expect(find.text(text), findsOneWidget);
+}
+```
+
+### Test scenario example
+
+```dart
+valentyTest(
+  'should show total after adding expense',
+  setup: (backend) {
+    backend.stubExpenses([
+      Expense(id: '1', description: 'Coffee', amount: 4.50, ...),
+    ]);
+  },
+  body: (system, backend) async {
+    await system.openApp();
+    system.verifyTotal('4.50');
+  },
+);
+```
+
+### @visibleForTesting patterns
+
+| Dependency | Production code change |
+|------------|----------------------|
+| `Dio()` | `@visibleForTesting static Dio Function() dioFactory = Dio.new` |
+| `SharedPreferences.getInstance()` | `@visibleForTesting static Future<SharedPreferences> Function() prefsFactory` |
+| `FirebaseFirestore.instance` | `@visibleForTesting static FirebaseFirestore Function() firestoreFactory` |
+| `FirebaseAuth.instance` | `@visibleForTesting static FirebaseAuth Function() authFactory` |
+| `DateTime.now()` | `@visibleForTesting static DateTime Function() clock = DateTime.now` |
+
+The rule: **1 line per dependency, zero behavior change.**
+
+---
+
+## Part B: Typed Builders (Logic-Only Tests) — Secondary
+
+Use this approach ONLY when:
+- Testing a pure Dart package (no Flutter)
+- Testing complex domain logic that doesn't involve UI
+- The user explicitly requests logic-only tests
+
+For Flutter apps, always prefer valentyTest (Part A).
+
+### Architecture
 
 The DSL uses phantom types to enforce Given -> When -> Then ordering at compile time.
 
-### Class Hierarchy
-
 ```
 FeatureScenario<TGiven>           -- Entry point
-  +-- .given (getter)             -- Returns GivenBuilder subclass
 GivenBuilder                      -- Lists domain objects: .product(), .coupon()
-  +-- .product()                  -- Returns DomainObjectBuilder<NeedsWhen>
-DomainObjectBuilder<NeedsWhen>    -- .withX() fluent methods, .when/.and getters
-  +-- .when                       -- Returns WhenBuilder subclass
+DomainObjectBuilder<NeedsWhen>    -- .withX() fluent config, .when/.and transitions
 WhenBuilder                       -- Lists use cases: .placeOrder()
-  +-- .placeOrder()               -- Returns DomainObjectBuilder<NeedsThen>
-DomainObjectBuilder<NeedsThen>    -- .withX() fluent methods, .then getter
-  +-- .then                       -- Returns ThenBuilder subclass
-ThenBuilder                       -- .shouldSucceed(), .order() etc
+DomainObjectBuilder<NeedsThen>    -- .withX() fluent config, .then transition
+ThenBuilder                       -- .shouldSucceed(), .order() assertions
 AssertionBuilder                  -- .hasBasePrice(), .hasQuantity(), .run()
-```
-
-### Phantom Types
-
-```dart
-sealed class ScenarioState {}
-final class NeedsGiven extends ScenarioState {}
-final class NeedsWhen extends ScenarioState {}
-final class NeedsThen extends ScenarioState {}
-final class ReadyToRun extends ScenarioState {}
 ```
 
 ### File Structure
@@ -54,92 +203,39 @@ final class ReadyToRun extends ScenarioState {}
 test/valenty/features/<feature>/
 +-- <feature>_scenario.dart
 +-- builders/
-|   +-- given/  (GivenBuilder + DomainObjectBuilder<NeedsWhen> per object)
-|   +-- when/   (WhenBuilder + DomainObjectBuilder<NeedsThen> per use case)
+|   +-- given/  (GivenBuilder + DomainObjectBuilder<NeedsWhen>)
+|   +-- when/   (WhenBuilder + DomainObjectBuilder<NeedsThen>)
 |   +-- then/   (ThenBuilder + AssertionBuilder)
 +-- scenarios/  (test files)
 ```
 
-## Scaffolding Builders
-
-When asked to scaffold a feature:
-
-1. Read domain models in `lib/` to understand objects and properties
-2. Generate FeatureScenario, GivenBuilder, WhenBuilder, ThenBuilder
-3. Generate DomainObjectBuilders for each domain object
-4. Generate AssertionBuilder for result verification
-5. Wire `applyToContext()` to create real domain objects via `TestContext`
-
 ### Key Patterns
 
 **DomainObjectBuilder<NeedsWhen> (Given phase):**
-- Takes `ScenarioBuilder<NeedsWhen>`, passes `StepPhase.given` to super
 - `.withX()` stores value, returns `this`
 - `applyToContext()` creates domain object, calls `ctx.set('key', object)`
 - `.when` getter: `finalizeStep()` then `addStep<NeedsThen>()`, return WhenBuilder
 - `.and` getter: `finalizeStep()`, return new GivenBuilder
 
 **DomainObjectBuilder<NeedsThen> (When phase):**
-- Takes `ScenarioBuilder<NeedsThen>`, passes `StepPhase.when` to super
 - `applyToContext()` reads Given values via `ctx.get()`, executes use case, stores result
 - `.then` getter: `finalizeStep()` then `addStep<ReadyToRun>()`, return ThenBuilder
 
 ### TestContext API
 
 ```dart
-ctx.set<T>(String key, T value)   // Store a value
-ctx.get<T>(String key)            // Retrieve typed value (throws StateError if missing)
-ctx.has(String key)               // Check if key exists (returns bool)
-ctx.clear()                       // Clear all values
+ctx.set<T>(String key, T value)   // Store value
+ctx.get<T>(String key)            // Get typed value (StateError if missing)
+ctx.has(String key)               // Check if key exists
 ```
 
-**Always specify type on get:** `ctx.get<Product>('product')` not `ctx.get('product')`
-
-**Always guard optional values:**
-```dart
-// CORRECT — handles scenarios with and without coupon:
-final discount = ctx.has('couponDiscount')
-    ? ctx.get<double>('couponDiscount')
-    : 0.0;
-
-// WRONG — crashes when coupon not provided:
-final discount = ctx.get<double>('couponDiscount');
-```
+**Always use type param:** `ctx.get<Product>('product')` not `ctx.get('product')`
+**Guard optional values:** `ctx.has('key') ? ctx.get<T>('key') : default`
 
 ### Async applyToContext()
 
-When a step needs async work (API calls, DB reads), return `Future<void>` instead of
-`void`. The `ScenarioRunner` detects futures and awaits them automatically.
-
-```dart
-@override
-Future<void> applyToContext(TestContext ctx) async {
-  final response = await apiClient.fetchOrder(id: _orderId);
-  ctx.set('order', response);
-}
-```
-
-Sync and async builders mix freely in the same scenario chain. The fluent API,
-`.withX()` methods, and `.run()` stay unchanged.
-
-### Common Mistakes to Avoid
-
-- `ctx.get('key')` without type param — returns dynamic, causes cast errors
-- `ctx.get<T>('key')` without `ctx.has()` check on optional values — crashes
-- Inventing `.hasX()` methods that don't exist — always read builders first
-- Mismatched context keys between Given and When — keys must match exactly
-- Missing `.run()` at end of chain — test never executes
-- `.given()` with parens — it's a getter: `.given`
-
-## Writing Tests
-
-When asked to write tests from QA scenarios:
-
-1. **Always read existing builders first** to know available methods
-2. Map English scenario parts to builder methods
-3. Use `.given`, `.when`, `.then` as getters (NO parentheses)
-4. Use `.and` to chain multiple givens or assertions
-5. End every chain with `.run()`
+For async work, return `Future<void>` instead of `void`. The runner awaits
+futures automatically. Sync and async builders mix freely.
 
 ### Example
 
@@ -158,6 +254,14 @@ OrderScenario('should calculate base price as unit price times quantity')
     .hasBasePrice(100.00)
     .run();
 ```
+
+### Common Mistakes
+
+- Missing type on `ctx.get()` — cast errors
+- Missing `ctx.has()` on optional values — StateError crash
+- Inventing builder methods — read actual files first
+- `.given()` with parens — it's a getter: `.given`
+- Missing `.run()` — test never executes
 
 ## Parameterized Tests
 
@@ -186,13 +290,9 @@ parameterizedTest(
 );
 ```
 
-- Each inner list is one test case; a separate `test()` is created per case
-- Cast `params[i]` to the correct type
-- Comment the first case to label each position
-- Use string interpolation in the scenario description for traceability
-
 ## Rules
 
+- Default to valentyTest for Flutter apps, typed builders for pure Dart only
 - Never invent builder methods that do not exist
 - Never use `.given()`, `.when()`, `.then()` with parentheses -- they are getters
 - Always import `package:valenty_dsl/valenty_dsl.dart` in builder files
@@ -206,15 +306,19 @@ Before running any setup commands:
 1. **Scan the project first** — check pubspec.yaml, look for `.cursor/`, `.claude/`,
    `.opencode/`, `AGENTS.md` directories. Find domain models in `lib/`.
 
-2. **Present findings** — show the user what AI tools you detected, what domain models
+2. **Detect project type** — Flutter (has `flutter:` in pubspec) vs pure Dart.
+   - Flutter -> recommend valentyTest (Part A)
+   - Pure Dart -> recommend typed builders (Part B)
+
+3. **Present findings** — show the user what AI tools you detected, what domain models
    exist, and what project type it is.
 
-3. **Ask the user** (one question at a time):
+4. **Ask the user** (one question at a time):
    - Which AI clients to generate skill files for (detected vs all)
    - Which features to scaffold builders for (based on domain models found)
    - Confirm installation scope (project root vs specific package in monorepo)
 
-4. **Execute** — run `valenty init`, then `valenty scaffold feature` per chosen feature,
+5. **Execute** — run `valenty init`, then `valenty scaffold feature` per chosen feature,
    then `valenty generate skills`.
 
 Do NOT silently auto-detect and proceed. Always confirm choices with the user first.

@@ -4,14 +4,177 @@
 /// in the user's project when they run `valenty init` or `valenty generate skills`.
 const openCodeAgentTemplate = r'''# Valenty Test Writer
 
-Scaffold typed fluent DSL builders for features and generate compile-time safe
-acceptance tests from QA scenarios using Valenty's typed fluent DSL.
+Generate UI-first component tests using `valentyTest` (primary) or typed fluent
+DSL builders for logic-only tests (secondary) using Valenty.
 
-## Architecture
+**Always default to valentyTest for Flutter apps.**
+
+## IMPORTANT: Always prefer valentyTest (UI-first)
+
+When asked to write tests, DEFAULT to valentyTest with full app setup.
+
+If the user explicitly asks for logic-only tests (no UI), WARN them:
+
+"Testing without the UI misses widget rendering errors, navigation bugs, state
+management issues, form validation, and layout problems — the bugs that reach
+production most often. Recommended: use valentyTest with full app setup."
+
+---
+
+## Part A: valentyTest (Component Tests with UI) — PRIMARY
+
+### Architecture
+
+```
+valentyTest('description', setup: ..., body: ...)
+    |
+    +-- BackendStubDsl       <-- configure fakes (setup parameter)
+    |   +-- @visibleForTesting factory overrides
+    |
+    +-- SystemDsl            <-- domain-language user actions
+    |   +-- UiDriver         <-- wraps WidgetTester
+    |
+    +-- testWidgets          <-- Flutter test framework
+```
+
+### What AI generates per feature
+
+```
+test/valenty/
+├── expense_test_helper.dart          # valentyTest() wrapper
+├── dsl/
+│   ├── expense_system_dsl.dart       # Domain actions: openApp(), addExpense()
+│   ├── expense_backend_stub.dart     # Stub config: stubExpenses(), stubBudget()
+│   └── expense_ui_driver.dart        # Widget interactions: tap, enter, verify
+└── scenarios/
+    └── add_expense_test.dart         # Test scenarios using valentyTest
+```
+
+### valentyTest wrapper pattern
+
+```dart
+void valentyTest(
+  String description, {
+  void Function(ExpenseBackendStub backend)? setup,
+  required Future<void> Function(
+    ExpenseSystemDsl system,
+    ExpenseBackendStub backend,
+  ) body,
+}) {
+  testWidgets(description, (tester) async {
+    final backend = ExpenseBackendStub();
+    if (setup != null) setup(backend);
+    await backend.apply();
+    try {
+      final driver = ExpenseUiDriver(tester);
+      final system = ExpenseSystemDsl(driver);
+      await body(system, backend);
+    } finally {
+      await backend.restore();
+    }
+  });
+}
+```
+
+### BackendStubDsl pattern
+
+```dart
+class ExpenseBackendStub extends BackendStubDsl {
+  final List<Expense> _expenses = [];
+
+  void stubExpenses(List<Expense> expenses) => _expenses.addAll(expenses);
+
+  @override
+  Future<void> apply() async {
+    ExpenseService.fetchExpensesOverride = () async => List.of(_expenses);
+  }
+
+  @override
+  Future<void> restore() async {
+    ExpenseService.resetForTesting();
+  }
+}
+```
+
+### SystemDsl pattern
+
+```dart
+class ExpenseSystemDsl extends SystemDsl {
+  ExpenseSystemDsl(this.driver);
+  final ExpenseUiDriver driver;
+
+  Future<void> openApp() async => driver.pumpApp();
+  Future<void> addExpense({required String desc, required String amount}) async {
+    await driver.enterDescription(desc);
+    await driver.enterAmount(amount);
+    await driver.tapSubmit();
+  }
+  void verifyTotal(String total) => driver.verifyText('Total: \$$total');
+}
+```
+
+### UiDriver pattern
+
+```dart
+class ExpenseUiDriver extends UiDriver {
+  ExpenseUiDriver(this.tester);
+  final WidgetTester tester;
+
+  Future<void> pumpApp() async {
+    await tester.pumpWidget(const MaterialApp(home: ExpenseListScreen()));
+    await tester.pumpAndSettle();
+  }
+  Future<void> tapSubmit() async {
+    await tester.tap(find.byKey(const Key('submitButton')));
+    await tester.pumpAndSettle();
+  }
+  void verifyText(String text) => expect(find.text(text), findsOneWidget);
+}
+```
+
+### Test scenario example
+
+```dart
+valentyTest(
+  'should show total after adding expense',
+  setup: (backend) {
+    backend.stubExpenses([
+      Expense(id: '1', description: 'Coffee', amount: 4.50, ...),
+    ]);
+  },
+  body: (system, backend) async {
+    await system.openApp();
+    system.verifyTotal('4.50');
+  },
+);
+```
+
+### @visibleForTesting patterns
+
+| Dependency | Production code change |
+|------------|----------------------|
+| `Dio()` | `@visibleForTesting static Dio Function() dioFactory = Dio.new` |
+| `SharedPreferences.getInstance()` | `@visibleForTesting static Future<SharedPreferences> Function() prefsFactory` |
+| `FirebaseFirestore.instance` | `@visibleForTesting static FirebaseFirestore Function() firestoreFactory` |
+| `FirebaseAuth.instance` | `@visibleForTesting static FirebaseAuth Function() authFactory` |
+| `DateTime.now()` | `@visibleForTesting static DateTime Function() clock = DateTime.now` |
+
+The rule: **1 line per dependency, zero behavior change.**
+
+---
+
+## Part B: Typed Builders (Logic-Only Tests) — Secondary
+
+Use this approach ONLY when:
+- Testing a pure Dart package (no Flutter)
+- Testing complex domain logic that doesn't involve UI
+- The user explicitly requests logic-only tests
+
+For Flutter apps, always prefer valentyTest (Part A).
+
+### Architecture
 
 The DSL uses phantom types to enforce Given -> When -> Then ordering at compile time.
-
-### Class Hierarchy
 
 ```
 FeatureScenario<TGiven>           -- Entry point
@@ -34,25 +197,6 @@ test/valenty/features/<feature>/
 +-- scenarios/       (test files)
 ```
 
-## Scaffolding Builders
-
-1. Read domain models in `lib/`
-2. Create FeatureScenario, GivenBuilder, WhenBuilder, ThenBuilder
-3. Create DomainObjectBuilder per domain object with `.withX()` methods
-4. Wire `applyToContext()` to create real domain objects via `TestContext`
-
-### Key Patterns
-
-**DomainObjectBuilder<NeedsWhen> (Given phase):**
-- `.withX()` stores value, returns `this`
-- `applyToContext()` creates domain object, calls `ctx.set('key', object)`
-- `.when` getter: `finalizeStep()` then `addStep<NeedsThen>()`, return WhenBuilder
-- `.and` getter: `finalizeStep()`, return new GivenBuilder
-
-**DomainObjectBuilder<NeedsThen> (When phase):**
-- `applyToContext()` reads Given values via `ctx.get()`, executes use case, stores result
-- `.then` getter: `finalizeStep()` then `addStep<ReadyToRun>()`, return ThenBuilder
-
 ### TestContext API
 
 ```dart
@@ -63,34 +207,6 @@ ctx.has(String key)               // Check if key exists
 
 **Always use type param:** `ctx.get<Product>('product')` not `ctx.get('product')`
 **Guard optional values:** `ctx.has('key') ? ctx.get<T>('key') : default`
-
-### Async applyToContext()
-
-For async work (API calls, DB reads), return `Future<void>` instead of `void`.
-The runner awaits futures automatically.
-
-```dart
-@override
-Future<void> applyToContext(TestContext ctx) async {
-  final response = await apiClient.fetchOrder(id: _orderId);
-  ctx.set('order', response);
-}
-```
-
-### Common Mistakes
-
-- Missing type on `ctx.get()` — cast errors
-- Missing `ctx.has()` on optional values — StateError crash
-- Inventing builder methods — read actual files first
-- `.given()` with parens — it's a getter: `.given`
-- Missing `.run()` — test never executes
-
-## Writing Tests
-
-1. Always read existing builders first
-2. `.given`, `.when`, `.then` are getters (no parentheses)
-3. `.and` chains multiple givens or assertions
-4. End with `.run()`
 
 ### Example
 
@@ -109,6 +225,14 @@ OrderScenario('should calculate base price as unit price times quantity')
     .hasBasePrice(100.00)
     .run();
 ```
+
+### Common Mistakes
+
+- Missing type on `ctx.get()` — cast errors
+- Missing `ctx.has()` on optional values — StateError crash
+- Inventing builder methods — read actual files first
+- `.given()` with parens — it's a getter: `.given`
+- Missing `.run()` — test never executes
 
 ## Parameterized Tests
 
@@ -137,24 +261,22 @@ parameterizedTest(
 );
 ```
 
-- Each inner list is one test case; a separate `test()` is created per case
-- Cast `params[i]` to the correct type
-- Comment the first case to label each position
-
 ## Rules
 
-- Never invent builder methods that do not exist
+- Default to valentyTest for Flutter apps, typed builders for pure Dart only
 - `.given`, `.when`, `.then` are getters, not method calls
 - Always import `package:valenty_dsl/valenty_dsl.dart`
 - Always import `package:test/test.dart` in assertion files
+- Never invent builder methods that do not exist
 
 ## Onboarding
 
 When setting up Valenty (`valenty init`), scan the project first:
 1. Detect AI tools (`.claude/`, `.cursor/`, `.opencode/`, `AGENTS.md`)
 2. Find domain models in `lib/`
-3. Present findings and ask the user which AI clients and features to set up
-4. Execute setup commands based on user choices
+3. Detect project type — Flutter vs pure Dart
+4. Present findings and ask the user which AI clients and features to set up
+5. Execute setup commands based on user choices
 
 Always confirm with the user before proceeding.
 ''';
