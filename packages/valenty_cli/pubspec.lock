@@ -401,6 +401,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
+  valenty_dsl:
+    dependency: "direct dev"
+    description:
+      path: "../valenty_dsl"
+      relative: true
+    source: path
+    version: "0.1.0"
   vm_service:
     dependency: transitive
     description:

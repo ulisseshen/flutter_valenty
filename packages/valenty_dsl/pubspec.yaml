@@ -1,6 +1,14 @@
 name: valenty_dsl
 description: Compile-time safe Gherkin-style DSL for Dart/Flutter testing with phantom types.
 version: 0.1.0
+repository: https://github.com/valenty-dev/valenty
+homepage: https://github.com/valenty-dev/valenty
+topics:
+  - testing
+  - bdd
+  - gherkin
+  - dsl
+  - flutter
 
 environment:
   sdk: ^3.5.0
