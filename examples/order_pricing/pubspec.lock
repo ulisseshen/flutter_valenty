@@ -324,7 +324,7 @@ packages:
   valenty_dsl:
     dependency: "direct dev"
     description:
-      path: "../packages/valenty_dsl"
+      path: "../../packages/valenty_dsl"
       relative: true
     source: path
     version: "0.1.0"

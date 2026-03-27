@@ -1,0 +1,14 @@
+name: ecommerce_example
+description: Valenty e-commerce example with Firebase, HTTP, Notifications, SharedPreferences
+publish_to: none
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  http: ^1.2.0
+
+dev_dependencies:
+  test: ^1.25.0
+  valenty_dsl:
+    path: ../../packages/valenty_dsl
