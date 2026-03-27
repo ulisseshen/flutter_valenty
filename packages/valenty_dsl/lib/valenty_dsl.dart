@@ -47,3 +47,9 @@ export 'src/matchers/delta_assertion.dart';
 // Helpers
 export 'src/helpers/parameterized_test.dart';
 export 'src/helpers/guard_assertion.dart';
+
+// Component testing (valentyTest pattern)
+export 'src/component/valenty_test.dart';
+export 'src/component/system_dsl.dart';
+export 'src/component/backend_stub_dsl.dart';
+export 'src/component/ui_driver.dart';
