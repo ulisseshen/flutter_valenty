@@ -1,13 +1,14 @@
 name: valenty_cli
-description: AI-Powered Compile-Time Safe Test Generation CLI for Dart/Flutter.
+description: AI-powered component test generation CLI for Flutter apps with compile-time safety.
 version: 0.1.0
 repository: https://github.com/valenty-dev/valenty
 homepage: https://github.com/valenty-dev/valenty
 topics:
   - testing
-  - cli
-  - code-generation
+  - component-testing
   - flutter
+  - cli
+  - ai
   - ai
 
 executables:

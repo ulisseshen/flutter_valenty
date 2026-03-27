@@ -1,8 +1,8 @@
 # Valenty
 
-**AI-first compile-time safe acceptance testing for Dart & Flutter.**
+**AI-first compile-time safe component testing for Flutter apps.**
 
-Valenty replaces fragile string-based Gherkin with a typed fluent DSL where **the compiler catches errors before you run any test**. The CLI is just an installer -- AI does the heavy lifting: scaffolding builders, writing tests, and maintaining the DSL.
+Valenty gives Flutter teams a typed fluent DSL for writing **component tests** -- testing your app in isolation with external dependencies (Firebase, Dio, databases, platform services) replaced by fakes. The compiler catches errors before you run any test. The CLI is just an installer -- AI does the heavy lifting: generating fakes from port interfaces, scaffolding builders, and writing tests.
 
 ```dart
 OrderScenario('should calculate base price as product of unit price and quantity')
@@ -39,12 +39,14 @@ Valenty is built on the **Modern Test Pyramid** by [Valentina Jemuovic](https://
 > [Modern Test Pyramid - Illustrated](https://journal.optivem.com/p/modern-test-pyramid-illustrated) |
 > [TDD Cycles](https://journal.optivem.com/p/tdd-cycles)
 
-**Valenty fills the gap where production bugs live** -- the System Level (Acceptance Tests) and the Component Level (Component Tests). Unit tests verify that individual components work. E2E tests verify the happy path through the UI. Neither tells you whether the **feature works as the customer expects**.
+**Valenty is primarily a Component Test tool for Flutter apps.** It fills the gap where production bugs live -- between unit tests (which test math, not features) and E2E tests (which are slow and fragile). Component tests verify that your Flutter app works correctly in isolation, with backend APIs, Firebase, databases, and other external systems replaced by fakes.
+
+Valenty also supports System Level Acceptance Tests for teams that need cross-component business behavior verification.
 
 > _"Your unit tests pass. Your E2E tests pass. And yet, the tax calculation was wrong. [...] There's a massive gap between 'all my unit tests pass' and 'this feature actually works as the customer expects.' That gap is where your production bugs live."_
 > -- [Valentina Jemuovic, Optivem Journal](https://journal.optivem.com)
 
-### Why this matters for Flutter teams
+### Why Component Tests matter for Flutter teams
 
 Flutter apps typically have many external dependencies (Firebase, Dio, SharedPreferences, SecureStorage, local databases, platform services). These are the boundaries where bugs hide -- and where the old test pyramid fails:
 
@@ -54,13 +56,13 @@ Flutter apps typically have many external dependencies (Firebase, Dio, SharedPre
 | **Widget Tests** | Test UI rendering, not business behavior. Confirmation page shows up but with wrong total. |
 | **Integration Tests** | Slow, fragile, require emulators. Break on CI, skip on PR reviews. |
 
-The Modern Test Pyramid fixes this:
+**Component Tests fix this.** They test the entire Flutter app in isolation -- with real business logic running, but external systems (backend APIs, Firebase, databases) replaced by fakes. They run in seconds, not minutes. They catch the bugs that unit tests miss.
 
 | Modern Pyramid Layer | What it tests | Flutter ROI |
 |---|---|---|
-| **Acceptance Tests** (Valenty) | Business behavior end-to-end, no UI | Catches feature bugs before QA, runs in seconds |
-| **Component Tests** (Valenty) | Frontend in isolation, backend stubbed | Each team gets fast feedback (minutes, not hours) |
-| **Contract Tests** | Stubs match real APIs | Prevents integration surprises at deployment |
+| **Component Tests** (Valenty -- primary focus) | Flutter app in isolation, externals faked | Fast feedback (seconds), catches feature bugs |
+| **Contract Tests** | Fakes match real APIs | Prevents integration surprises at deployment |
+| **Acceptance Tests** (Valenty -- also supported) | Business behavior across components | Catches cross-team integration bugs |
 
 ### Component Test Pyramids
 
@@ -81,13 +83,14 @@ For a Flutter app with moderate business logic, **Component Test Pyramid I** is 
 
 ### ROI for Flutter apps
 
-Introducing Valenty acceptance tests in a Flutter project delivers measurable ROI:
+Introducing Valenty component tests in a Flutter project delivers measurable ROI:
 
-- **Fewer production bugs**: Acceptance tests catch the bugs that unit tests miss (wrong inputs, missing integrations, hardcoded values)
-- **Faster QA cycles**: QA writes English scenarios, AI translates to typed DSL, tests run in seconds instead of manual testing taking days
+- **Fewer production bugs**: Component tests catch the bugs that unit tests miss (wrong inputs, missing integrations, hardcoded values that should come from a service)
+- **Faster feedback**: Tests run in seconds on your machine, no emulators or backend servers needed
 - **Safe refactoring**: Rename a builder method in one place, the compiler tells you every test that needs updating -- no silent breakage
-- **Team independence**: With component tests, the frontend team gets feedback in minutes without waiting for the backend team
+- **Team independence**: Frontend team gets feedback in minutes without waiting for the backend team
 - **Legacy code safety net**: Write tests AFTER code (Test Last), capture current behavior, then refactor with confidence
+- **AI generates fakes**: AI reads your port interfaces and generates manual fakes -- no reflection, no mockito, no code generation build step
 
 > _"ATDD is the foundation. When you have that, you're ready for any other improvements. You'll be able to safely upgrade your Tech Stack, redesign your Architecture, introduce Unit Tests & clean up your Code."_
 > -- [Valentina Jemuovic](https://journal.optivem.com/p/how-to-introduce-atdd-in-legacy-code-in-3-months)
