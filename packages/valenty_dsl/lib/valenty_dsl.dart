@@ -9,6 +9,7 @@ export 'src/core/scenario_builder.dart';
 export 'src/core/scenario_extensions.dart';
 export 'src/core/step_record.dart';
 export 'src/core/test_context.dart';
+export 'src/core/test_environment.dart';
 
 // Builders
 export 'src/builders/and_given_builder.dart';
