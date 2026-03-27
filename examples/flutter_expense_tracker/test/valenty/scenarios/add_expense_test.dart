@@ -1,14 +1,14 @@
 import '../expense_test_helper.dart';
 
 void main() {
-  expenseTest('should navigate to add expense screen', (system, backend) async {
+  valentyTest('should navigate to add expense screen', (system, backend) async {
     backend.stubEmptyExpenses();
     await system.openApp();
     await system.navigateToAddExpense();
     system.verifyOnAddScreen();
   });
 
-  expenseTest('should add expense and show snack bar', (system, backend) async {
+  valentyTest('should add expense and show snack bar', (system, backend) async {
     backend.stubEmptyExpenses();
     await system.openApp();
     await system.navigateToAddExpense();
@@ -20,7 +20,7 @@ void main() {
     system.verifySnackBar('Expense added!');
   });
 
-  expenseTest('should show validation errors for empty form',
+  valentyTest('should show validation errors for empty form',
       (system, backend) async {
     backend.stubEmptyExpenses();
     await system.openApp();
@@ -30,7 +30,7 @@ void main() {
     system.verifyValidationError('Amount is required');
   });
 
-  expenseTest('should show added expense in list after returning',
+  valentyTest('should show added expense in list after returning',
       (system, backend) async {
     backend.stubEmptyExpenses();
     await system.openApp();

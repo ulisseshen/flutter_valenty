@@ -1,7 +1,7 @@
 import '../expense_test_helper.dart';
 
 void main() {
-  expenseTest('should navigate from list to add expense and back',
+  valentyTest('should navigate from list to add expense and back',
       (system, backend) async {
     backend.stubEmptyExpenses();
     await system.openApp();
@@ -14,7 +14,7 @@ void main() {
     system.verifyEmptyState();
   });
 
-  expenseTest('should navigate from list to budget screen and back',
+  valentyTest('should navigate from list to budget screen and back',
       (system, backend) async {
     backend.stubEmptyExpenses();
     await system.openApp();

@@ -4,7 +4,11 @@ import 'dsl/expense_backend_stub.dart';
 import 'dsl/expense_system_dsl.dart';
 import 'dsl/expense_ui_driver.dart';
 
-void expenseTest(
+/// Valenty component test for the Expense Tracker app.
+///
+/// Sets up the full app with faked backend, provides domain-language
+/// [system] DSL for user actions and [backend] DSL for stub configuration.
+void valentyTest(
   String description,
   Future<void> Function(ExpenseSystemDsl system, ExpenseBackendStub backend)
       body,

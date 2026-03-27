@@ -3,14 +3,14 @@ import 'package:flutter_expense_tracker/models/expense.dart';
 import '../expense_test_helper.dart';
 
 void main() {
-  expenseTest('should show empty state when no expenses exist',
+  valentyTest('should show empty state when no expenses exist',
       (system, backend) async {
     backend.stubEmptyExpenses();
     await system.openApp();
     system.verifyEmptyState();
   });
 
-  expenseTest('should display expenses with descriptions and amounts',
+  valentyTest('should display expenses with descriptions and amounts',
       (system, backend) async {
     backend.stubExpenses([
       Expense(
@@ -33,7 +33,7 @@ void main() {
     system.verifyExpenseVisible('Bus');
   });
 
-  expenseTest('should show correct total', (system, backend) async {
+  valentyTest('should show correct total', (system, backend) async {
     backend.stubExpenses([
       Expense(
         id: '1',
