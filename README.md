@@ -26,16 +26,71 @@ OrderScenario('should calculate base price as product of unit price and quantity
 
 ---
 
-## Why Valenty?
+## The Modern Test Pyramid
 
-The workflow is simple:
+Valenty is built on the **Modern Test Pyramid** by [Valentina Jemuovic](https://journal.optivem.com). The old test pyramid (Unit, Integration, E2E) has fundamental problems. The Modern Test Pyramid replaces it with three levels:
 
-```
-QA writes scenario in English
-    --> AI translates to typed DSL
-        --> Compiler validates structure
-            --> Tests run
-```
+![Modern Test Pyramid](docs/images/modern_test_pyramid.png)
+*Image credit: [Valentina Jemuovic, Optivem Journal](https://journal.optivem.com/p/modern-test-pyramid-illustrated)*
+
+**Valenty covers the System Level (Acceptance Tests) and the Component Level (Component Tests)** -- the two layers where the highest-ROI bugs live.
+
+> See: [Modern Test Pyramid](https://journal.optivem.com/p/modern-test-pyramid) |
+> [Modern Test Pyramid - Illustrated](https://journal.optivem.com/p/modern-test-pyramid-illustrated) |
+> [TDD Cycles](https://journal.optivem.com/p/tdd-cycles)
+
+**Valenty fills the gap where production bugs live** -- the System Level (Acceptance Tests) and the Component Level (Component Tests). Unit tests verify that individual components work. E2E tests verify the happy path through the UI. Neither tells you whether the **feature works as the customer expects**.
+
+> _"Your unit tests pass. Your E2E tests pass. And yet, the tax calculation was wrong. [...] There's a massive gap between 'all my unit tests pass' and 'this feature actually works as the customer expects.' That gap is where your production bugs live."_
+> -- [Valentina Jemuovic, Optivem Journal](https://journal.optivem.com)
+
+### Why this matters for Flutter teams
+
+Flutter apps typically have many external dependencies (Firebase, Dio, SharedPreferences, SecureStorage, local databases, platform services). These are the boundaries where bugs hide -- and where the old test pyramid fails:
+
+| Old Pyramid Layer | Problem for Flutter |
+|---|---|
+| **Unit Tests** | Test math, not features. A tax calculation can be correct but use the wrong rate. |
+| **Widget Tests** | Test UI rendering, not business behavior. Confirmation page shows up but with wrong total. |
+| **Integration Tests** | Slow, fragile, require emulators. Break on CI, skip on PR reviews. |
+
+The Modern Test Pyramid fixes this:
+
+| Modern Pyramid Layer | What it tests | Flutter ROI |
+|---|---|---|
+| **Acceptance Tests** (Valenty) | Business behavior end-to-end, no UI | Catches feature bugs before QA, runs in seconds |
+| **Component Tests** (Valenty) | Frontend in isolation, backend stubbed | Each team gets fast feedback (minutes, not hours) |
+| **Contract Tests** | Stubs match real APIs | Prevents integration surprises at deployment |
+
+### Component Test Pyramids
+
+For each component in your system (frontend, backend, microservices), you choose the right level of testing based on its business complexity:
+
+| Low complexity | High complexity |
+|---|---|
+| ![Component Test Pyramid I](docs/images/component_test_pyramid.png) | ![Component Test Pyramid II](docs/images/component_test_pyramid_ii.png) |
+| Component Tests + Contract Tests | Component Tests + Contract Tests + Unit Tests + Narrow Integration Tests |
+
+*Images credit: [Valentina Jemuovic, Optivem Journal](https://journal.optivem.com/p/modern-test-pyramid-illustrated)*
+
+For a Flutter app with moderate business logic, **Component Test Pyramid I** is often sufficient -- Valenty handles both the Component Tests and the Contract Tests at this level. For complex domains, add Unit Tests and Narrow Integration Tests at the Unit Level.
+
+> See: [How to introduce ATDD in Legacy Code](https://journal.optivem.com/p/how-to-introduce-atdd-in-legacy-code-in-3-months) |
+> [Frontend Component Tests](https://journal.optivem.com/p/tdd-in-legacy-code-component-tests-frontend) |
+> [Modern TDD - Component Level](https://journal.optivem.com/p/modern-tdd-component-level)
+
+### ROI for Flutter apps
+
+Introducing Valenty acceptance tests in a Flutter project delivers measurable ROI:
+
+- **Fewer production bugs**: Acceptance tests catch the bugs that unit tests miss (wrong inputs, missing integrations, hardcoded values)
+- **Faster QA cycles**: QA writes English scenarios, AI translates to typed DSL, tests run in seconds instead of manual testing taking days
+- **Safe refactoring**: Rename a builder method in one place, the compiler tells you every test that needs updating -- no silent breakage
+- **Team independence**: With component tests, the frontend team gets feedback in minutes without waiting for the backend team
+- **Legacy code safety net**: Write tests AFTER code (Test Last), capture current behavior, then refactor with confidence
+
+> _"ATDD is the foundation. When you have that, you're ready for any other improvements. You'll be able to safely upgrade your Tech Stack, redesign your Architecture, introduce Unit Tests & clean up your Code."_
+> -- [Valentina Jemuovic](https://journal.optivem.com/p/how-to-introduce-atdd-in-legacy-code-in-3-months)
 
 ### Gherkin vs Valenty
 
@@ -47,6 +102,17 @@ QA writes scenario in English
 | **Step ordering** | Nothing prevents 2 Whens | Compiler enforces Given->When->Then |
 | **AI generation** | AI can invent nonexistent steps | AI can only use existing builder methods |
 | **Maintenance at scale** | Painful (string duplication) | Trivial (type-safe refactoring) |
+
+### Why Valenty?
+
+The workflow is simple:
+
+```
+QA writes scenario in English
+    --> AI translates to typed DSL
+        --> Compiler validates structure
+            --> Tests run
+```
 
 ---
 
@@ -332,18 +398,61 @@ valenty_cli (CLI tool -- install globally)
 
 ---
 
-## Example
+## Examples
 
-See the [`examples/order_pricing/`](examples/order_pricing/) directory for a complete working project with:
-- Domain models (`Product`, `Order`)
-- Full builder tree for the Order feature
-- 3 QA scenarios translated to typed DSL tests
-- All tests passing
+Each example demonstrates a different level of the Modern Test Pyramid and architecture style:
+
+| Example | Pyramid Level | Architecture | External Dependencies |
+|---------|--------------|-------------|----------------------|
+| [`order_pricing`](examples/order_pricing/) | System (Acceptance) | Simple models + builders | None |
+| [`auth_flow`](examples/auth_flow/) | Component | Hexagonal (ports + adapters + fakes) | Dio, SecureStorage, SharedPrefs |
+| [`ecommerce`](examples/ecommerce/) | Component | Hexagonal (ports + adapters + fakes) | Firebase, HTTP, Notifications, SharedPrefs |
+| [`clean_arch_weather`](examples/clean_arch_weather/) | Component | Clean Architecture (domain/data/presentation) | HTTP API, local cache |
+
+### System Level: Acceptance Tests (order_pricing)
+
+Pure business behavior testing -- no external dependencies, no UI:
 
 ```bash
-cd examples/order_pricing
-dart pub get
-dart test --reporter expanded
+cd examples/order_pricing && dart test
+```
+
+### Component Level: Testing with External Dependencies (auth_flow, ecommerce)
+
+Test the frontend/backend in isolation using the **port/fake pattern**
+([Hexagonal Architecture](https://journal.optivem.com/p/hexagonal-architecture-ports-and-adapters)):
+
+```
+lib/ports/       # Driven Port interfaces (abstract classes)
+lib/adapters/    # Real implementations (Dio, Firebase, SharedPrefs)
+test/.../fakes/  # Test doubles (same interface, in-memory)
+```
+
+> See: [Frontend Component Tests](https://journal.optivem.com/p/tdd-in-legacy-code-component-tests-frontend) |
+> [Hexagonal Architecture](https://journal.optivem.com/p/hexagonal-architecture-ports-and-adapters)
+
+```bash
+cd examples/auth_flow && dart test
+cd examples/ecommerce && dart test
+```
+
+### Component Level: Clean Architecture (clean_arch_weather)
+
+Flutter-style Clean Architecture with entity/model separation, use cases, and cache-fallback
+logic tested through the real repository with fake datasources:
+
+```
+lib/features/weather/domain/    # Entities, repository interface, use cases
+lib/features/weather/data/      # Models (fromJson), datasources, repository impl
+test/.../fakes/                 # Fake datasources (not fake repository)
+```
+
+The real `WeatherRepositoryImpl` is tested -- fakes replace the datasources, not the business
+logic. This validates the actual cache-fallback behavior
+([Clean Architecture Data Flow](https://journal.optivem.com/p/clean-architecture-on-the-backend-data-flow)).
+
+```bash
+cd examples/clean_arch_weather && dart test
 ```
 
 ---
