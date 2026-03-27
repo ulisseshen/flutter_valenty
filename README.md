@@ -1,22 +1,33 @@
 # Valenty
 
-**AI-first compile-time safe component testing for Flutter apps.**
+**UI-first component testing for Flutter apps. Write tests in domain language, not widget trees.**
 
-Valenty gives Flutter teams a typed fluent DSL for writing **component tests** -- testing your app in isolation with external dependencies (Firebase, Dio, databases, platform services) replaced by fakes. The compiler catches errors before you run any test. The CLI is just an installer -- AI does the heavy lifting: generating fakes from port interfaces, scaffolding builders, and writing tests.
+Valenty gives Flutter teams a **valentyTest** workflow for writing **component tests** -- testing your full app with faked dependencies, using domain-language DSLs that read like user stories. The CLI is just an installer -- AI does the heavy lifting: generating test helpers, DSLs, UI drivers, and writing tests.
 
 ```dart
-OrderScenario('should calculate base price as product of unit price and quantity')
-    .given
-    .product()
-        .withUnitPrice(20.00)
-    .when
-    .placeOrder()
-        .withQuantity(5)
-    .then
-    .shouldSucceed()
-    .and
-    .order()
-        .hasBasePrice(100.00)
+valentyTest(
+  'should show order total after placing order',
+  setup: (backend) {
+    backend.stubProduct(sku: 'APPLE1001', price: 2.50);
+    backend.stubOrderCreation(totalPrice: 12.50);
+  },
+  body: (system, backend) async {
+    await system.openApp();
+    await system.selectProduct('APPLE1001');
+    await system.setQuantity(5);
+    await system.placeOrder();
+    await system.verifyConfirmation('Total: \$12.50');
+  },
+);
+```
+
+For pure Dart logic tests, Valenty also provides a typed builder DSL with compile-time safety:
+
+```dart
+OrderScenario('should calculate base price')
+    .given.product().withUnitPrice(20.00)
+    .when.placeOrder().withQuantity(5)
+    .then.order().hasBasePrice(100.00)
     .run();
 ```
 
@@ -125,21 +136,89 @@ QA writes scenario in English
 # 1. Install the CLI
 dart pub global activate valenty_cli
 
-# 2. Initialize in your project (adds dependency + AI skills)
-cd my_project
+# 2. Initialize in your project (detects Flutter, generates AI skills)
+cd my_flutter_app
 valenty init
 
-# 3. Ask your AI to scaffold builders
-#    "Scaffold the Order feature builders for acceptance testing"
+# 3. Ask your AI: "Scaffold the Order feature for valentyTest"
+#    AI generates: test helper, SystemDsl, BackendStubDsl, UiDriver
 
-# 4. Ask your AI to write tests
-#    "Write test for: Given a product with unit price $20, when order placed with quantity 5, then base price is $100"
+# 4. Ask your AI: "Write test: user adds expense and sees total"
+#    AI writes a valentyTest scenario using the generated DSLs
 
 # 5. Run tests
-dart test
+flutter test
 ```
 
-That is it. The CLI installs everything. Your AI tool reads the generated skill files and knows the full DSL architecture, your project's models, and how to generate correct typed code.
+That is it. The CLI installs everything. Your AI tool reads the generated skill files and knows the full valentyTest architecture, your project's models, and how to generate correct test code.
+
+---
+
+## How valentyTest Works
+
+valentyTest is a wrapper around Flutter's testWidgets that sets up the full app
+with faked dependencies and provides two DSLs:
+
+- **BackendStubDsl** (setup) -- configure what external systems return
+- **SystemDsl** (body) -- user actions and assertions in domain language
+
+Architecture:
+
+```
+valentyTest('description', setup: ..., body: ...)
+    |
+    +-- setup: (backend) { ... }     <-- configure fakes
+    |
+    +-- body: (system, backend) async
+    |   |
+    |   +-- system.openApp()         <-- SystemDsl (domain language)
+    |   +-- system.addExpense()
+    |   +-- system.verifyTotal()
+    |       |
+    |       +-- UiDriver             <-- wraps WidgetTester
+    |
+    +-- testWidgets                  <-- Flutter test framework
+```
+
+What AI generates for each feature:
+
+```
+test/valenty/
++-- expense_test_helper.dart         # valentyTest() wrapper
++-- dsl/
+|   +-- expense_system_dsl.dart      # User actions: openApp(), addExpense()
+|   +-- expense_backend_stub.dart    # Stub config: stubExpenses()
+|   +-- expense_ui_driver.dart       # Widget interactions: tap, enter, verify
++-- scenarios/
+    +-- add_expense_test.dart        # Test scenarios
+```
+
+---
+
+## Testing Legacy Code: @visibleForTesting
+
+Valenty works with legacy Flutter code by adding one line per dependency:
+
+```dart
+class OrderService {
+  @visibleForTesting
+  static Dio Function() dioFactory = Dio.new;  // <-- 1 line added
+
+  Future<Order> place(Product p, int qty) async {
+    final response = await dioFactory().post('/api/orders', data: {...});
+    return Order.fromJson(response.data);
+  }
+}
+```
+
+Common patterns:
+
+| Dependency | @visibleForTesting override |
+|---|---|
+| Dio() | `static Dio Function() dioFactory = Dio.new` |
+| SharedPreferences | `static Future<SharedPreferences> Function() prefsFactory` |
+| FirebaseFirestore.instance | `static FirebaseFirestore Function() firestoreFactory` |
+| DateTime.now() | `static DateTime Function() clock = DateTime.now` |
 
 ---
 
@@ -212,63 +291,32 @@ PHASE 1: Setup
       |-- Generates AI skill files for detected tools
 
 PHASE 2: Scaffold (AI does this)
-  Tell your AI: "Scaffold the Payment feature"
-      |-- AI reads your domain models in lib/
-      |-- AI generates the full builder tree:
-          Scenario, GivenBuilder, DomainObjectBuilders,
-          WhenBuilder, ActionBuilder, ThenBuilder, AssertionBuilders
+  Tell your AI: "Scaffold the Order feature for valentyTest"
+      |-- AI reads your domain models and widgets in lib/
+      |-- AI generates: test helper, SystemDsl, BackendStubDsl, UiDriver
 
 PHASE 3: Refresh context
   valenty generate skills
-      |-- Updates AI skill files with new builders
+      |-- Updates AI skill files with new DSLs
       |-- AI now knows about the new feature
 
 PHASE 4: Write tests (AI does this)
-  Tell your AI: "Write test: Given a payment of $50..."
-      |-- AI reads existing builders
-      |-- AI generates typed DSL code using only real methods
-      |-- Compiler validates the result
+  Tell your AI: "Write test: user adds expense and sees total"
+      |-- AI reads existing DSLs
+      |-- AI writes a valentyTest scenario
+      |-- flutter test validates the result
 
 PHASE 5: Iterate
-  Rename builders or methods in one place
+  Rename DSL methods in one place
       |-- Compiler catches all broken tests
       |-- Fix in one place, all tests update
 ```
 
-### Adding a New Domain Concept
-
-When you need a new concept (e.g., "shipping address"):
-
-1. Ask your AI: "Add an AddressGivenBuilder to the Order feature"
-2. The AI reads existing builders and creates the new one following the pattern
-3. Regenerate AI skills:
-
-```bash
-valenty generate skills
-```
-
-4. Now you (or AI) can write:
-
-```dart
-OrderScenario('should use shipping address')
-    .given
-    .product().withUnitPrice(20.00)
-    .and
-    .address()
-        .withCity('New York')
-        .withZipCode('10001')
-    .when
-    .placeOrder().withQuantity(1)
-    .then
-    .shouldSucceed()
-    .run();
-```
-
 ### Adding a New Feature
 
-Ask your AI: "Scaffold the Payment feature builders for acceptance testing"
+Ask your AI: "Scaffold the Payment feature for valentyTest"
 
-The AI reads your `lib/` code, finds the Payment domain models, and generates the complete builder tree. Then run `valenty generate skills` so the AI knows about the new feature for future test writing.
+The AI reads your `lib/` code, finds the Payment domain models and widgets, and generates the complete valentyTest structure (test helper, SystemDsl, BackendStubDsl, UiDriver). Then run `valenty generate skills` so the AI knows about the new feature for future test writing.
 
 ---
 
@@ -322,7 +370,22 @@ valenty test --coverage
 
 ---
 
-## DSL Builder Hierarchy
+## Pure Logic Tests (Secondary)
+
+For pure Dart packages or complex domain logic without UI, Valenty provides
+a typed builder DSL with compile-time safety:
+
+```dart
+OrderScenario('should calculate base price')
+    .given.product().withUnitPrice(20.00)
+    .when.placeOrder().withQuantity(5)
+    .then.order().hasBasePrice(100.00)
+    .run();
+```
+
+For Flutter apps, prefer valentyTest instead.
+
+### DSL Builder Hierarchy
 
 The type system enforces the Given -> When -> Then flow at compile time using phantom types:
 
@@ -352,7 +415,7 @@ Each arrow represents a type transition. You cannot call `.when` from a `ThenBui
 
 ### Builder File Structure
 
-When AI scaffolds a feature, it generates this structure:
+When AI scaffolds a feature for the typed builder DSL, it generates this structure:
 
 ```
 test/valenty/features/<feature>/
@@ -405,16 +468,29 @@ valenty_cli (CLI tool -- install globally)
 
 Each example demonstrates a different level of the Modern Test Pyramid and architecture style:
 
-| Example | Pyramid Level | Architecture | External Dependencies |
-|---------|--------------|-------------|----------------------|
-| [`order_pricing`](examples/order_pricing/) | System (Acceptance) | Simple models + builders | None |
-| [`auth_flow`](examples/auth_flow/) | Component | Hexagonal (ports + adapters + fakes) | Dio, SecureStorage, SharedPrefs |
-| [`ecommerce`](examples/ecommerce/) | Component | Hexagonal (ports + adapters + fakes) | Firebase, HTTP, Notifications, SharedPrefs |
-| [`clean_arch_weather`](examples/clean_arch_weather/) | Component | Clean Architecture (domain/data/presentation) | HTTP API, local cache |
+| Example | Approach | Pyramid Level | Architecture | External Dependencies |
+|---------|----------|--------------|-------------|----------------------|
+| [`expense_tracker`](examples/expense_tracker/) | **valentyTest** | Component (Flutter) | Full app + faked deps | Dio, SharedPrefs |
+| [`legacy_orders`](examples/legacy_orders/) | **valentyTest** | Component (Flutter) | Legacy code + @visibleForTesting | Dio, Firebase |
+| [`legacy_finance`](examples/legacy_finance/) | **valentyTest** | Component (Flutter) | Legacy code + @visibleForTesting | Dio, SharedPrefs |
+| [`order_pricing`](examples/order_pricing/) | Typed builders | System (Acceptance) | Simple models + builders | None |
+| [`auth_flow`](examples/auth_flow/) | Typed builders | Component | Hexagonal (ports + adapters + fakes) | Dio, SecureStorage, SharedPrefs |
+| [`ecommerce`](examples/ecommerce/) | Typed builders | Component | Hexagonal (ports + adapters + fakes) | Firebase, HTTP, Notifications, SharedPrefs |
+| [`clean_arch_weather`](examples/clean_arch_weather/) | Typed builders | Component | Clean Architecture (domain/data/presentation) | HTTP API, local cache |
+
+### Flutter Apps: valentyTest (expense_tracker, legacy_orders, legacy_finance)
+
+valentyTest tests the full Flutter app with faked dependencies. Tests read like user stories:
+
+```bash
+cd examples/expense_tracker && flutter test
+cd examples/legacy_orders && flutter test
+cd examples/legacy_finance && flutter test
+```
 
 ### System Level: Acceptance Tests (order_pricing)
 
-Pure business behavior testing -- no external dependencies, no UI:
+Pure business behavior testing with typed builders -- no external dependencies, no UI:
 
 ```bash
 cd examples/order_pricing && dart test
