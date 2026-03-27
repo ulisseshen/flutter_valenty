@@ -3,6 +3,9 @@ import 'dart:io';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:path/path.dart' as p;
 
+import '../../../analyzers/project_introspector.dart';
+import '../project_snapshot_section.dart';
+import 'templates/valenty_init_skill_template.dart';
 import 'templates/valenty_skill_template.dart';
 
 /// Generates Claude Code skill files in the user's project.
@@ -15,7 +18,13 @@ class ClaudeSkillGenerator {
   ///
   /// Creates:
   /// - `.claude/skills/valenty-test-writer/SKILL.md`
-  Future<void> generate(String projectPath) async {
+  ///
+  /// If [snapshot] is provided, appends a dynamic "Current Project State"
+  /// section with discovered features, builders, and domain models.
+  Future<void> generate(
+    String projectPath, {
+    ProjectSnapshot? snapshot,
+  }) async {
     final skillDir = Directory(
       p.join(projectPath, '.claude', 'skills', 'valenty-test-writer'),
     );
@@ -24,12 +33,32 @@ class ClaudeSkillGenerator {
       skillDir.createSync(recursive: true);
     }
 
+    final content = valentySkillTemplate +
+        renderProjectSnapshotSection(snapshot);
+
     final skillFile = File(p.join(skillDir.path, 'SKILL.md'));
-    skillFile.writeAsStringSync(valentySkillTemplate);
+    skillFile.writeAsStringSync(content);
 
     _logger.info(
       '${lightGreen.wrap('✓')} Generated Claude skill: '
       '.claude/skills/valenty-test-writer/SKILL.md',
+    );
+
+    // Generate onboarding skill
+    final onboardingDir = Directory(
+      p.join(projectPath, '.claude', 'skills', 'valenty-onboarding'),
+    );
+
+    if (!onboardingDir.existsSync()) {
+      onboardingDir.createSync(recursive: true);
+    }
+
+    final onboardingFile = File(p.join(onboardingDir.path, 'SKILL.md'));
+    onboardingFile.writeAsStringSync(valentyInitSkillTemplate);
+
+    _logger.info(
+      '${lightGreen.wrap('✓')} Generated Claude skill: '
+      '.claude/skills/valenty-onboarding/SKILL.md',
     );
   }
 }

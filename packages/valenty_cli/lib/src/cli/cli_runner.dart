@@ -1,10 +1,15 @@
 import 'package:args/command_runner.dart';
 import 'package:mason_logger/mason_logger.dart';
 
+import 'commands/context_command.dart';
 import 'commands/doctor_command.dart';
 import 'commands/generate_command.dart';
 import 'commands/init_command.dart';
+import 'commands/list_command.dart';
+import 'commands/scaffold_command.dart';
+import 'commands/test_command.dart';
 import 'commands/update_command.dart';
+import 'commands/validate_command.dart';
 
 class CliRunner extends CommandRunner<void> {
   CliRunner({Logger? logger})
@@ -17,6 +22,11 @@ class CliRunner extends CommandRunner<void> {
     addCommand(GenerateCommand(logger: _logger));
     addCommand(DoctorCommand(logger: _logger));
     addCommand(UpdateCommand(logger: _logger));
+    addCommand(ScaffoldCommand(logger: _logger));
+    addCommand(ListCommand(logger: _logger));
+    addCommand(ContextCommand(logger: _logger));
+    addCommand(ValidateCommand(logger: _logger));
+    addCommand(TestCommand(logger: _logger));
     argParser.addFlag(
       'version',
       negatable: false,

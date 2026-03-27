@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:args/command_runner.dart';
 import 'package:mason_logger/mason_logger.dart';
 
+import '../../analyzers/project_introspector.dart';
 import '../../detection/ai_tool_detector.dart';
 import '../../generators/ai_tools/claude/claude_skill_generator.dart';
 import '../../generators/ai_tools/codex/codex_agent_generator.dart';
@@ -40,6 +41,25 @@ class _SkillsSubCommand extends Command<void> {
   Future<void> run() async {
     final projectPath = Directory.current.path;
 
+    // Introspect the project for features, builders, and domain models
+    final introspecting = _logger.progress('Introspecting project');
+    ProjectSnapshot? snapshot;
+    try {
+      snapshot = const ProjectIntrospector().introspect(projectPath);
+      if (snapshot.hasData) {
+        final featureCount = snapshot.features.length;
+        final modelCount = snapshot.domainModels.length;
+        introspecting.complete(
+          'Found $featureCount feature(s) and $modelCount domain model(s)',
+        );
+      } else {
+        introspecting.complete('No features or domain models detected');
+      }
+    } catch (_) {
+      introspecting.complete('Introspection skipped (will use static templates)');
+      snapshot = null;
+    }
+
     final detecting = _logger.progress('Detecting AI tools');
     final detector = AiToolDetector();
     final tools = detector.detect(projectPath);
@@ -51,8 +71,12 @@ class _SkillsSubCommand extends Command<void> {
         'and Claude skill (recommended defaults).',
       );
       // Generate defaults even if no tool directories are detected
-      await _generateForTool(AiToolType.claude, projectPath);
-      await _generateAgentsMd(projectPath);
+      await _generateForTool(
+        AiToolType.claude,
+        projectPath,
+        snapshot: snapshot,
+      );
+      await _generateAgentsMd(projectPath, snapshot: snapshot);
       _logger.success('Generated default skill files.');
       return;
     }
@@ -63,11 +87,11 @@ class _SkillsSubCommand extends Command<void> {
     );
 
     for (final tool in tools) {
-      await _generateForTool(tool, projectPath);
+      await _generateForTool(tool, projectPath, snapshot: snapshot);
     }
 
     // Always generate AGENTS.md (portable, works with Codex and OpenCode)
-    await _generateAgentsMd(projectPath);
+    await _generateAgentsMd(projectPath, snapshot: snapshot);
 
     _logger.success(
       'Skill generation complete. '
@@ -75,21 +99,40 @@ class _SkillsSubCommand extends Command<void> {
     );
   }
 
-  Future<void> _generateForTool(AiToolType tool, String projectPath) async {
+  Future<void> _generateForTool(
+    AiToolType tool,
+    String projectPath, {
+    ProjectSnapshot? snapshot,
+  }) async {
     switch (tool) {
       case AiToolType.claude:
-        await ClaudeSkillGenerator(logger: _logger).generate(projectPath);
+        await ClaudeSkillGenerator(logger: _logger).generate(
+          projectPath,
+          snapshot: snapshot,
+        );
       case AiToolType.cursor:
-        await CursorRuleGenerator(logger: _logger).generate(projectPath);
+        await CursorRuleGenerator(logger: _logger).generate(
+          projectPath,
+          snapshot: snapshot,
+        );
       case AiToolType.codex:
         // AGENTS.md is generated separately (always)
         break;
       case AiToolType.openCode:
-        await OpenCodeAgentGenerator(logger: _logger).generate(projectPath);
+        await OpenCodeAgentGenerator(logger: _logger).generate(
+          projectPath,
+          snapshot: snapshot,
+        );
     }
   }
 
-  Future<void> _generateAgentsMd(String projectPath) async {
-    await CodexAgentGenerator(logger: _logger).generate(projectPath);
+  Future<void> _generateAgentsMd(
+    String projectPath, {
+    ProjectSnapshot? snapshot,
+  }) async {
+    await CodexAgentGenerator(logger: _logger).generate(
+      projectPath,
+      snapshot: snapshot,
+    );
   }
 }

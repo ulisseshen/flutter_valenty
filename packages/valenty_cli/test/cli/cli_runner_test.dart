@@ -32,11 +32,16 @@ void main() {
       expect(
         commandNames,
         equals([
+          'context',
           'doctor',
           'generate',
           'help',
           'init',
+          'list',
+          'scaffold',
+          'test',
           'update',
+          'validate',
         ]),
       );
     });
