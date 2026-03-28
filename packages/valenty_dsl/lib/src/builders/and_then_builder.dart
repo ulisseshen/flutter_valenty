@@ -8,6 +8,7 @@ import '../core/test_context.dart';
 /// Subclass this to define domain-specific assertion methods
 /// available after `.and` in the Then phase.
 abstract class AndThenBuilder {
+  /// Create an AndThenBuilder wrapping the scenario in [ReadyToRun] state.
   AndThenBuilder(this._scenario);
 
   final ScenarioBuilder<ReadyToRun> _scenario;

@@ -11,7 +11,21 @@ import 'commands/test_command.dart';
 import 'commands/update_command.dart';
 import 'commands/validate_command.dart';
 
+/// The main command runner for the Valenty CLI.
+///
+/// Registers all available sub-commands (`init`, `generate`, `doctor`,
+/// `update`, `scaffold`, `list`, `context`, `validate`, `test`) and handles
+/// the top-level `--version` flag.
+///
+/// ```dart
+/// final runner = CliRunner();
+/// await runner.run(['init']);
+/// ```
 class CliRunner extends CommandRunner<void> {
+  /// Creates a new [CliRunner] instance.
+  ///
+  /// An optional [logger] can be provided for output; if omitted a default
+  /// [Logger] is used.
   CliRunner({Logger? logger})
       : _logger = logger ?? Logger(),
         super(
@@ -36,6 +50,10 @@ class CliRunner extends CommandRunner<void> {
 
   final Logger _logger;
 
+  /// Parses [args] and runs the matching sub-command.
+  ///
+  /// If the `--version` flag is present, prints the current version and
+  /// returns without executing any sub-command.
   @override
   Future<void> run(Iterable<String> args) async {
     final topLevelResults = parse(args);

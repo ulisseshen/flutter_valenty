@@ -21,6 +21,8 @@ enum StepPhase {
 /// actions without requiring user-supplied description strings.
 /// The action itself IS the step — typed builder methods are the actions.
 final class StepRecord {
+  /// Create a step record with the given [phase], [action], and optional
+  /// [description].
   const StepRecord({
     required this.phase,
     required this.action,

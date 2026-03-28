@@ -7,6 +7,7 @@ import '../core/scenario_builder.dart';
 /// reuse their GivenBuilder for `.and` after Given, but this base class
 /// exists in case different behavior is needed.
 abstract class AndGivenBuilder {
+  /// Create an AndGivenBuilder wrapping the scenario in [NeedsWhen] state.
   AndGivenBuilder(this._scenario);
 
   final ScenarioBuilder<NeedsWhen> _scenario;
