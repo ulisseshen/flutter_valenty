@@ -124,23 +124,54 @@ class InitCommand extends Command<void> {
           _logger.err(stderr);
         }
       }
+      // ── Step 8: Success message ─────────────────────────────────
+      final isFlutterProject = projectInfo.hasFlutter;
+
+      _logger.info('');
+      _logger.success('Valenty initialized successfully!');
+      _logger.info('');
+      _logger.info('What was installed:');
+      _logger.info('  - valenty_dsl added to dev_dependencies');
+      _logger.info('  - .valenty.yaml configuration created');
+      _logger.info('  - AI skill files generated (your AI now knows Valenty)');
+      _logger.info('');
+      _logger.info('Next steps — tell your AI:');
+      _logger.info('');
+      if (isFlutterProject) {
+        _logger.info(
+          '  1. "Scaffold the Order feature for valentyTest"',
+        );
+        _logger.info(
+          '     -> AI generates: test helper, SystemDsl, BackendStubDsl, UiDriver',
+        );
+        _logger.info('');
+        _logger.info(
+          '  2. "Write test: user adds an expense and sees the total"',
+        );
+        _logger.info(
+          '     -> AI writes a valentyTest scenario using the generated DSLs',
+        );
+      } else {
+        _logger.info(
+          '  1. "Scaffold the Order feature builders for acceptance testing"',
+        );
+        _logger.info(
+          '     -> AI generates: Scenario, GivenBuilder, WhenBuilder, ThenBuilder',
+        );
+        _logger.info('');
+        _logger.info(
+          '  2. "Write test for: Given a product with unit price \$20..."',
+        );
+        _logger.info(
+          '     -> AI writes a typed builder scenario using the generated builders',
+        );
+      }
+      _logger.info('');
+      _logger.info('Run "valenty doctor" to verify your setup.');
     } on FileSystemException {
       detecting.fail('Failed to detect project type');
       return;
     }
-
-    _logger.info('');
-    _logger.success('Valenty initialized successfully!');
-    _logger.info('');
-    _logger.info('Next steps:');
-    _logger.info(
-      '  Ask your AI: "Scaffold the <Feature> builders for acceptance testing"',
-    );
-    _logger.info(
-      '  Ask your AI: "Write test for: Given a product with unit price \$20..."',
-    );
-    _logger.info('');
-    _logger.info('Run "valenty doctor" to verify your setup.');
   }
 
   /// Add `valenty_dsl` to `dev_dependencies` in pubspec.yaml.
