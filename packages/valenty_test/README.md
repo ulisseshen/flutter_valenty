@@ -1,4 +1,4 @@
-# valenty_dsl
+# valenty_test
 
 Compile-time safe component testing DSL for Flutter apps with phantom types and typed fluent builders.
 
@@ -8,7 +8,7 @@ Part of the [Valenty](https://github.com/valenty-dev/valenty) testing framework.
 
 ```yaml
 dev_dependencies:
-  valenty_dsl: ^0.1.0
+  valenty_test: ^0.1.0
 ```
 
 ## Usage

@@ -286,7 +286,7 @@ This re-introspects your project (scans `test/valenty/features/` for builders an
 ```
 PHASE 1: Setup
   valenty init
-      |-- Adds valenty_dsl as dev dependency
+      |-- Adds valenty_test as dev dependency
       |-- Creates .valenty.yaml configuration
       |-- Generates AI skill files for detected tools
 
@@ -440,7 +440,7 @@ test/valenty/features/<feature>/
 ## Architecture
 
 ```
-valenty_dsl (library -- add as dev_dependency)
+valenty_test (library -- add as dev_dependency)
     +-- Core: phantom types, ScenarioBuilder, TestContext
     +-- Builders: GivenBuilder, WhenBuilder, ThenBuilder,
     |            DomainObjectBuilder, AssertionBuilder
@@ -541,7 +541,7 @@ cd examples/clean_arch_weather && dart test
 | Package | Description | Status |
 |---------|-------------|--------|
 | `valenty_cli` | CLI tool -- installs DSL dependency and AI skills | 0.1.0 - Pre-release |
-| `valenty_dsl` | DSL library -- phantom types, builders, matchers | 0.1.0 - Pre-release |
+| `valenty_test` | DSL library -- phantom types, builders, matchers | 0.1.0 - Pre-release |
 
 ---
 

@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:valenty_dsl/src/matchers/valenty_matchers.dart';
+import 'package:valenty_test/src/matchers/valenty_matchers.dart';
 
 class _Product {
   _Product({required this.name, required this.price});

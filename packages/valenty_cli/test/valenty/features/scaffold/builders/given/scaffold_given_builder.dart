@@ -1,4 +1,4 @@
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import 'model_file_given_builder.dart';
 import 'project_given_builder.dart';

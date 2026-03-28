@@ -123,7 +123,7 @@ void valentyTest(
 
 ```dart
 // test/valenty/dsl/expense_backend_stub.dart
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 import 'package:my_app/models/expense.dart';
 import 'package:my_app/services/expense_service.dart';
 
@@ -148,7 +148,7 @@ class ExpenseBackendStub extends BackendStubDsl {
 
 ```dart
 // test/valenty/dsl/expense_system_dsl.dart
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 import 'expense_ui_driver.dart';
 
 class ExpenseSystemDsl extends SystemDsl {
@@ -173,7 +173,7 @@ class ExpenseSystemDsl extends SystemDsl {
 // test/valenty/dsl/expense_ui_driver.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 import 'package:my_app/screens/expense_list_screen.dart';
 
 class ExpenseUiDriver extends UiDriver {
@@ -337,7 +337,7 @@ you must:
 ### Builder Architecture
 
 The Valenty DSL has a strict class hierarchy. Each builder extends a base class
-from `package:valenty_dsl/valenty_dsl.dart`:
+from `package:valenty_test/valenty_test.dart`:
 
 ```
 FeatureScenario<TGiven>           -- Entry point: MyScenario('description')
@@ -410,7 +410,7 @@ test/valenty/features/<feature>/
 #### 1. FeatureScenario (entry point)
 
 ```dart
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import 'builders/given/<feature>_given_builder.dart';
 
@@ -427,7 +427,7 @@ class <Feature>Scenario extends FeatureScenario<<Feature>GivenBuilder> {
 #### 2. GivenBuilder (lists domain objects)
 
 ```dart
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import '<object1>_given_builder.dart';
 import '<object2>_given_builder.dart';
@@ -446,7 +446,7 @@ This is the most important builder. It configures a domain object with `.withX()
 methods and stores values to apply to the TestContext.
 
 ```dart
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import 'path/to/domain_model.dart';
 import '../when/<feature>_when_builder.dart';
@@ -505,7 +505,7 @@ class <Object>GivenBuilder extends DomainObjectBuilder<NeedsWhen> {
 #### 4. WhenBuilder (lists use cases)
 
 ```dart
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import '<usecase>_when_builder.dart';
 
@@ -519,7 +519,7 @@ class <Feature>WhenBuilder extends WhenBuilder {
 #### 5. DomainObjectBuilder in When phase (use case builder)
 
 ```dart
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import 'path/to/domain_models.dart';
 import '../then/<feature>_then_builder.dart';
@@ -569,7 +569,7 @@ class <UseCase>WhenBuilder extends DomainObjectBuilder<NeedsThen> {
 
 ```dart
 import 'package:test/test.dart';
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import 'path/to/domain_model.dart';
 import '<feature>_assertion_builder.dart';
@@ -621,7 +621,7 @@ class <Feature>AndThenBuilder extends AndThenBuilder {
 
 ```dart
 import 'package:test/test.dart';
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import 'path/to/domain_model.dart';
 import '<feature>_then_builder.dart';
@@ -755,7 +755,7 @@ OrderScenario('should calculate base price as unit price times quantity')
 
 ### Parameterized Tests
 
-Use `parameterizedTest()` from `package:valenty_dsl` to run one scenario against
+Use `parameterizedTest()` from `package:valenty_test` to run one scenario against
 multiple data sets without copy-paste:
 
 ```dart
@@ -799,7 +799,7 @@ parameterizedTest(
 - Keep scenario descriptions behavior-focused: "should calculate base price"
 - One scenario per business rule
 - Import `package:test/test.dart` in ThenBuilder and AssertionBuilder files
-- Import `package:valenty_dsl/valenty_dsl.dart` in every builder/DSL file
+- Import `package:valenty_test/valenty_test.dart` in every builder/DSL file
 
 ### DON'T:
 - **Never use typed builders for Flutter apps** unless the user explicitly asks

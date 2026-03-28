@@ -1,6 +1,6 @@
 import 'package:clean_arch_weather_example/features/weather/domain/entities/weather.dart';
 import 'package:test/test.dart';
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import 'weather_then_builder.dart';
 

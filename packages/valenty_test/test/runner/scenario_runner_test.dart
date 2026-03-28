@@ -1,8 +1,8 @@
 import 'package:test/test.dart';
-import 'package:valenty_dsl/src/core/phantom_types.dart';
-import 'package:valenty_dsl/src/core/scenario_builder.dart';
-import 'package:valenty_dsl/src/core/step_record.dart';
-import 'package:valenty_dsl/src/runner/scenario_runner.dart';
+import 'package:valenty_test/src/core/phantom_types.dart';
+import 'package:valenty_test/src/core/scenario_builder.dart';
+import 'package:valenty_test/src/core/step_record.dart';
+import 'package:valenty_test/src/runner/scenario_runner.dart';
 
 void main() {
   group('ScenarioRunner', () {

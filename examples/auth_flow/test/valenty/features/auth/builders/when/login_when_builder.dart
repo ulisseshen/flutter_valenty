@@ -1,4 +1,4 @@
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import 'package:auth_flow_example/models/auth_result.dart';
 import 'package:auth_flow_example/models/user.dart';

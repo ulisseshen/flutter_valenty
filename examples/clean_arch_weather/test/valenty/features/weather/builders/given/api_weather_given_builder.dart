@@ -1,5 +1,5 @@
 import 'package:clean_arch_weather_example/features/weather/data/models/weather_model.dart';
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import '../when/weather_when_builder.dart';
 import 'weather_given_builder.dart';

@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import '../../setup/todo_test_environment.dart';
 import 'todo_then_builder.dart';

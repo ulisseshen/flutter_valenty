@@ -1,4 +1,4 @@
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import '../../fakes/fake_auth_api.dart';
 import '../when/auth_when_builder.dart';

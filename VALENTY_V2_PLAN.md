@@ -88,12 +88,12 @@ valentyTest / featureTest
 
 ## Implementation Plan
 
-### Phase 1: Core DSL classes in valenty_dsl
+### Phase 1: Core DSL classes in valenty_test
 
 **New files:**
 
 ```
-packages/valenty_dsl/lib/src/
+packages/valenty_test/lib/src/
 ├── component/
 │   ├── valenty_test.dart           # valentyTest() function
 │   ├── system_dsl.dart             # SystemDsl base class

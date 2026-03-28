@@ -1,5 +1,5 @@
 import 'package:test/test.dart' show addTearDown;
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import 'builders/given/expense_given_builder.dart';
 import 'setup/expense_test_environment.dart';

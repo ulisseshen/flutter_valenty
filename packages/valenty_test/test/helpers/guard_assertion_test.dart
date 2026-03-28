@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:valenty_dsl/src/helpers/guard_assertion.dart';
+import 'package:valenty_test/src/helpers/guard_assertion.dart';
 
 void main() {
   group('guardAssertion', () {

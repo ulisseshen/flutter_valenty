@@ -1,4 +1,4 @@
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import 'search_weather_when_builder.dart';
 import 'get_forecast_when_builder.dart';

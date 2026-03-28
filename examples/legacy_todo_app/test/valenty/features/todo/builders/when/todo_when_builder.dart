@@ -1,4 +1,4 @@
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import 'fetch_todos_when_builder.dart';
 import 'complete_todo_when_builder.dart';

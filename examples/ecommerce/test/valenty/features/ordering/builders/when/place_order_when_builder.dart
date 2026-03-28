@@ -2,7 +2,7 @@ import 'package:ecommerce_example/models/notification_payload.dart';
 import 'package:ecommerce_example/models/order.dart';
 import 'package:ecommerce_example/models/order_item.dart';
 import 'package:ecommerce_example/models/product.dart';
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import '../../fakes/fake_notification_service.dart';
 import '../../fakes/fake_order_api.dart';

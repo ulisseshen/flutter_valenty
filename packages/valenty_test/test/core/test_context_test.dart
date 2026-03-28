@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:valenty_dsl/src/core/test_context.dart';
+import 'package:valenty_test/src/core/test_context.dart';
 
 void main() {
   late TestContext ctx;

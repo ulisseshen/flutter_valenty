@@ -9,7 +9,7 @@ String generateWhenBuilder({
   final actionName = 'execute$featurePascal';
   final actionBuilderName = 'Execute${featurePascal}WhenBuilder';
 
-  return """import 'package:valenty_dsl/valenty_dsl.dart';
+  return """import 'package:valenty_test/valenty_test.dart';
 
 import '${featureSnake}_action_builder.dart';
 
@@ -34,7 +34,7 @@ String generateActionBuilder({
 }) {
   final actionBuilderName = 'Execute${featurePascal}WhenBuilder';
 
-  return """import 'package:valenty_dsl/valenty_dsl.dart';
+  return """import 'package:valenty_test/valenty_test.dart';
 
 import '../then/${featureSnake}_then_builder.dart';
 

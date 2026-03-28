@@ -1,5 +1,5 @@
 import 'package:mason_logger/mason_logger.dart';
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import 'package:valenty_cli/src/generators/scaffold/scaffold_generator.dart';
 import '../then/scaffold_then_builder.dart';

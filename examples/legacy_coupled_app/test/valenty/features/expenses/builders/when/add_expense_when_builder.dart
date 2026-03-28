@@ -3,7 +3,7 @@ import 'package:legacy_coupled_app_example/models/expense.dart';
 import 'package:legacy_coupled_app_example/services/auth_manager.dart';
 import 'package:legacy_coupled_app_example/services/expense_screen_controller.dart';
 import 'package:legacy_coupled_app_example/services/local_storage.dart';
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import '../../setup/expense_test_environment.dart';
 import '../then/expense_then_builder.dart';

@@ -1,4 +1,4 @@
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import 'api_todos_given_builder.dart';
 import 'cached_todos_given_builder.dart';

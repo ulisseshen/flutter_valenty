@@ -265,7 +265,7 @@ OrderScenario('should calculate base price as unit price times quantity')
 
 ## Parameterized Tests
 
-Use `parameterizedTest()` from `package:valenty_dsl` to run one scenario against
+Use `parameterizedTest()` from `package:valenty_test` to run one scenario against
 multiple data sets without copy-paste:
 
 ```dart
@@ -295,7 +295,7 @@ parameterizedTest(
 - Default to valentyTest for Flutter apps, typed builders for pure Dart only
 - Never invent builder methods that do not exist
 - Never use `.given()`, `.when()`, `.then()` with parentheses -- they are getters
-- Always import `package:valenty_dsl/valenty_dsl.dart` in builder files
+- Always import `package:valenty_test/valenty_test.dart` in builder files
 - Always import `package:test/test.dart` in ThenBuilder and AssertionBuilder files
 - Invalid tests will not compile -- that is the point of the typed DSL
 

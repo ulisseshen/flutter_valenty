@@ -1,16 +1,16 @@
 import 'package:test/test.dart';
-import 'package:valenty_dsl/src/core/phantom_types.dart';
-import 'package:valenty_dsl/src/core/scenario_builder.dart';
-import 'package:valenty_dsl/src/core/step_record.dart';
-import 'package:valenty_dsl/src/core/test_context.dart';
-import 'package:valenty_dsl/src/builders/given_builder.dart';
-import 'package:valenty_dsl/src/builders/when_builder.dart';
-import 'package:valenty_dsl/src/builders/then_builder.dart';
-import 'package:valenty_dsl/src/builders/and_then_builder.dart';
-import 'package:valenty_dsl/src/builders/domain_object_builder.dart';
-import 'package:valenty_dsl/src/builders/assertion_builder.dart';
-import 'package:valenty_dsl/src/builders/feature_scenario.dart';
-import 'package:valenty_dsl/src/runner/scenario_runner.dart';
+import 'package:valenty_test/src/core/phantom_types.dart';
+import 'package:valenty_test/src/core/scenario_builder.dart';
+import 'package:valenty_test/src/core/step_record.dart';
+import 'package:valenty_test/src/core/test_context.dart';
+import 'package:valenty_test/src/builders/given_builder.dart';
+import 'package:valenty_test/src/builders/when_builder.dart';
+import 'package:valenty_test/src/builders/then_builder.dart';
+import 'package:valenty_test/src/builders/and_then_builder.dart';
+import 'package:valenty_test/src/builders/domain_object_builder.dart';
+import 'package:valenty_test/src/builders/assertion_builder.dart';
+import 'package:valenty_test/src/builders/feature_scenario.dart';
+import 'package:valenty_test/src/runner/scenario_runner.dart';
 
 // -- Domain model (would be in user's project) --
 

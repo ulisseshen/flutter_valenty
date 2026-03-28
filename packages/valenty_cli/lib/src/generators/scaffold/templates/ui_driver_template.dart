@@ -9,7 +9,7 @@ String generateUiDriver({
   return '''
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 class ${featurePascal}UiDriver extends UiDriver {
   ${featurePascal}UiDriver(this.tester);

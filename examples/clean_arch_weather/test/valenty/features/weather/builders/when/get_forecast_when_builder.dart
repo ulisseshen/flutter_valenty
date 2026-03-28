@@ -3,7 +3,7 @@ import 'package:clean_arch_weather_example/features/weather/data/models/forecast
 import 'package:clean_arch_weather_example/features/weather/data/models/weather_model.dart';
 import 'package:clean_arch_weather_example/features/weather/data/repositories/weather_repository_impl.dart';
 import 'package:clean_arch_weather_example/features/weather/domain/entities/forecast.dart';
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import '../../fakes/fake_weather_local_datasource.dart';
 import '../../fakes/fake_weather_remote_datasource.dart';

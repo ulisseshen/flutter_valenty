@@ -7,7 +7,7 @@ String generateScenario({
   required String featurePascal,
   required List<ModelInfo> models,
 }) {
-  return """import 'package:valenty_dsl/valenty_dsl.dart';
+  return """import 'package:valenty_test/valenty_test.dart';
 
 import 'builders/given/${featureSnake}_given_builder.dart';
 

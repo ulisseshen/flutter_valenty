@@ -2,7 +2,7 @@
 
 ## Document Purpose
 
-This document is a **complete implementation specification** for redesigning the `valenty_dsl` package from a string-based Gherkin DSL to a **compile-time safe typed fluent builder DSL** following Valentina Jemuovic's approach to acceptance testing.
+This document is a **complete implementation specification** for redesigning the `valenty_test` package from a string-based Gherkin DSL to a **compile-time safe typed fluent builder DSL** following Valentina Jemuovic's approach to acceptance testing.
 
 An implementation agent with NO prior context about this project should be able to execute this entire redesign using only this document.
 
@@ -11,7 +11,7 @@ An implementation agent with NO prior context about this project should be able 
 ## Table of Contents
 
 1. [Architecture Overview](#1-architecture-overview)
-2. [Framework Layer (valenty_dsl provides)](#2-framework-layer)
+2. [Framework Layer (valenty_test provides)](#2-framework-layer)
 3. [User/Generated Layer (CLI scaffolds per feature)](#3-usergenerated-layer)
 4. [Complete File-by-File Implementation Spec](#4-complete-file-by-file-implementation-spec)
 5. [Complete Test Spec](#5-complete-test-spec)
@@ -97,7 +97,7 @@ This means `.withUnitPrice(20)` returns the same `ProductBuilder` (for more chai
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│  FRAMEWORK LAYER (valenty_dsl package on pub.dev)   │
+│  FRAMEWORK LAYER (valenty_test package on pub.dev)   │
 │                                                     │
 │  ScenarioState phantom types                        │
 │  ScenarioBuilder<S>                                 │
@@ -138,7 +138,7 @@ The user's `OrderGivenBuilder` extends the framework's `GivenBuilder` and adds d
 
 ## 2. Framework Layer
 
-This section specifies every class the `valenty_dsl` package provides. These are the framework building blocks that all projects depend on.
+This section specifies every class the `valenty_test` package provides. These are the framework building blocks that all projects depend on.
 
 ### 2.1 Phantom Types (`phantom_types.dart`)
 
@@ -791,7 +791,7 @@ class Feature {
 
 ## 3. User/Generated Layer
 
-This section specifies what the CLI scaffolds when a user runs `valenty scaffold feature order`. These are the files that live in the USER's project, not in the `valenty_dsl` package.
+This section specifies what the CLI scaffolds when a user runs `valenty scaffold feature order`. These are the files that live in the USER's project, not in the `valenty_test` package.
 
 ### 3.1 How Domain Builders Connect Back to the Scenario
 
@@ -839,7 +839,7 @@ These templates show what the CLI generates. The user then fills in the domain l
 #### OrderScenario (entry point)
 
 ```dart
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import 'given/order_given_builder.dart';
 import 'when/order_when_builder.dart';
@@ -874,7 +874,7 @@ class OrderScenario {
 #### OrderGivenBuilder
 
 ```dart
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import 'product_given_builder.dart';
 import 'coupon_given_builder.dart';
@@ -900,7 +900,7 @@ class OrderGivenBuilder extends GivenBuilder {
 #### ProductGivenBuilder
 
 ```dart
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import '../when/order_when_builder.dart';
 import 'order_given_builder.dart';
@@ -984,7 +984,7 @@ OrderWhenBuilder get when {
 #### CouponGivenBuilder
 
 ```dart
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import '../when/order_when_builder.dart';
 import 'order_given_builder.dart';
@@ -1035,7 +1035,7 @@ class CouponGivenBuilder extends DomainObjectBuilder<NeedsWhen> {
 #### OrderWhenBuilder
 
 ```dart
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import 'place_order_when_builder.dart';
 
@@ -1055,7 +1055,7 @@ class OrderWhenBuilder extends WhenBuilder {
 #### PlaceOrderWhenBuilder
 
 ```dart
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import '../then/order_then_builder.dart';
 
@@ -1098,7 +1098,7 @@ class PlaceOrderWhenBuilder extends DomainObjectBuilder<NeedsThen> {
 
 ```dart
 import 'package:test/test.dart';
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import 'order_assertion_builder.dart';
 
@@ -1169,7 +1169,7 @@ class OrderAndThenBuilder extends AndThenBuilder {
 
 ```dart
 import 'package:test/test.dart';
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 /// Fluent assertion builder for Order properties.
 class OrderAssertionBuilder extends AssertionBuilder {
@@ -1207,14 +1207,14 @@ class OrderAssertionBuilder extends AssertionBuilder {
 
 ## 4. Complete File-by-File Implementation Spec
 
-This section lists every file in the redesigned `valenty_dsl/lib/src/` directory with complete, compilable Dart code.
+This section lists every file in the redesigned `valenty_test/lib/src/` directory with complete, compilable Dart code.
 
 ### Directory Structure
 
 ```
-valenty_dsl/
+valenty_test/
   lib/
-    valenty_dsl.dart                          — Barrel export
+    valenty_test.dart                          — Barrel export
     src/
       core/
         phantom_types.dart                    — KEEP (unchanged)
@@ -1993,8 +1993,8 @@ test/
 
 ```dart
 import 'package:test/test.dart';
-import 'package:valenty_dsl/src/core/step_record.dart';
-import 'package:valenty_dsl/src/core/test_context.dart';
+import 'package:valenty_test/src/core/step_record.dart';
+import 'package:valenty_test/src/core/test_context.dart';
 
 void main() {
   group('StepRecord', () {
@@ -2038,9 +2038,9 @@ void main() {
 
 ```dart
 import 'package:test/test.dart';
-import 'package:valenty_dsl/src/core/phantom_types.dart';
-import 'package:valenty_dsl/src/core/scenario_builder.dart';
-import 'package:valenty_dsl/src/core/step_record.dart';
+import 'package:valenty_test/src/core/phantom_types.dart';
+import 'package:valenty_test/src/core/scenario_builder.dart';
+import 'package:valenty_test/src/core/step_record.dart';
 
 void main() {
   group('ScenarioBuilder', () {
@@ -2123,11 +2123,11 @@ void main() {
 
 ```dart
 import 'package:test/test.dart';
-import 'package:valenty_dsl/src/core/phantom_types.dart';
-import 'package:valenty_dsl/src/core/scenario_builder.dart';
-import 'package:valenty_dsl/src/core/step_record.dart';
-import 'package:valenty_dsl/src/core/test_context.dart';
-import 'package:valenty_dsl/src/builders/domain_object_builder.dart';
+import 'package:valenty_test/src/core/phantom_types.dart';
+import 'package:valenty_test/src/core/scenario_builder.dart';
+import 'package:valenty_test/src/core/step_record.dart';
+import 'package:valenty_test/src/core/test_context.dart';
+import 'package:valenty_test/src/builders/domain_object_builder.dart';
 
 /// Concrete test implementation of DomainObjectBuilder.
 class _TestDomainBuilder extends DomainObjectBuilder<NeedsWhen> {
@@ -2203,11 +2203,11 @@ void main() {
 
 ```dart
 import 'package:test/test.dart';
-import 'package:valenty_dsl/src/core/phantom_types.dart';
-import 'package:valenty_dsl/src/core/scenario_builder.dart';
-import 'package:valenty_dsl/src/core/step_record.dart';
-import 'package:valenty_dsl/src/core/test_context.dart';
-import 'package:valenty_dsl/src/builders/assertion_builder.dart';
+import 'package:valenty_test/src/core/phantom_types.dart';
+import 'package:valenty_test/src/core/scenario_builder.dart';
+import 'package:valenty_test/src/core/step_record.dart';
+import 'package:valenty_test/src/core/test_context.dart';
+import 'package:valenty_test/src/builders/assertion_builder.dart';
 
 class _TestAssertionBuilder extends AssertionBuilder {
   _TestAssertionBuilder(super.scenario);
@@ -2280,10 +2280,10 @@ void main() {
 
 ```dart
 import 'package:test/test.dart';
-import 'package:valenty_dsl/src/core/phantom_types.dart';
-import 'package:valenty_dsl/src/core/scenario_builder.dart';
-import 'package:valenty_dsl/src/core/step_record.dart';
-import 'package:valenty_dsl/src/builders/given_builder.dart';
+import 'package:valenty_test/src/core/phantom_types.dart';
+import 'package:valenty_test/src/core/scenario_builder.dart';
+import 'package:valenty_test/src/core/step_record.dart';
+import 'package:valenty_test/src/builders/given_builder.dart';
 
 class _TestGivenBuilder extends GivenBuilder {
   _TestGivenBuilder(super.scenario);
@@ -2322,10 +2322,10 @@ void main() {
 
 ```dart
 import 'package:test/test.dart';
-import 'package:valenty_dsl/src/core/phantom_types.dart';
-import 'package:valenty_dsl/src/core/scenario_builder.dart';
-import 'package:valenty_dsl/src/core/step_record.dart';
-import 'package:valenty_dsl/src/builders/when_builder.dart';
+import 'package:valenty_test/src/core/phantom_types.dart';
+import 'package:valenty_test/src/core/scenario_builder.dart';
+import 'package:valenty_test/src/core/step_record.dart';
+import 'package:valenty_test/src/builders/when_builder.dart';
 
 class _TestWhenBuilder extends WhenBuilder {
   _TestWhenBuilder(super.scenario);
@@ -2372,11 +2372,11 @@ void main() {
 
 ```dart
 import 'package:test/test.dart';
-import 'package:valenty_dsl/src/core/phantom_types.dart';
-import 'package:valenty_dsl/src/core/scenario_builder.dart';
-import 'package:valenty_dsl/src/core/step_record.dart';
-import 'package:valenty_dsl/src/core/test_context.dart';
-import 'package:valenty_dsl/src/builders/then_builder.dart';
+import 'package:valenty_test/src/core/phantom_types.dart';
+import 'package:valenty_test/src/core/scenario_builder.dart';
+import 'package:valenty_test/src/core/step_record.dart';
+import 'package:valenty_test/src/core/test_context.dart';
+import 'package:valenty_test/src/builders/then_builder.dart';
 
 class _TestThenBuilder extends ThenBuilder {
   _TestThenBuilder(super.scenario);
@@ -2436,10 +2436,10 @@ void main() {
 
 ```dart
 import 'package:test/test.dart';
-import 'package:valenty_dsl/src/core/phantom_types.dart';
-import 'package:valenty_dsl/src/core/scenario_builder.dart';
-import 'package:valenty_dsl/src/builders/feature_scenario.dart';
-import 'package:valenty_dsl/src/builders/given_builder.dart';
+import 'package:valenty_test/src/core/phantom_types.dart';
+import 'package:valenty_test/src/core/scenario_builder.dart';
+import 'package:valenty_test/src/builders/feature_scenario.dart';
+import 'package:valenty_test/src/builders/given_builder.dart';
 
 class _SimpleGivenBuilder extends GivenBuilder {
   _SimpleGivenBuilder(super.scenario);
@@ -2489,10 +2489,10 @@ void main() {
 
 ```dart
 import 'package:test/test.dart';
-import 'package:valenty_dsl/src/core/phantom_types.dart';
-import 'package:valenty_dsl/src/core/scenario_builder.dart';
-import 'package:valenty_dsl/src/core/step_record.dart';
-import 'package:valenty_dsl/src/runner/scenario_runner.dart';
+import 'package:valenty_test/src/core/phantom_types.dart';
+import 'package:valenty_test/src/core/scenario_builder.dart';
+import 'package:valenty_test/src/core/step_record.dart';
+import 'package:valenty_test/src/runner/scenario_runner.dart';
 
 void main() {
   group('ScenarioRunner', () {
@@ -2576,18 +2576,18 @@ This is the end-to-end integration test using a complete example with generated-
 
 ```dart
 import 'package:test/test.dart';
-import 'package:valenty_dsl/src/core/phantom_types.dart';
-import 'package:valenty_dsl/src/core/scenario_builder.dart';
-import 'package:valenty_dsl/src/core/step_record.dart';
-import 'package:valenty_dsl/src/core/test_context.dart';
-import 'package:valenty_dsl/src/builders/given_builder.dart';
-import 'package:valenty_dsl/src/builders/when_builder.dart';
-import 'package:valenty_dsl/src/builders/then_builder.dart';
-import 'package:valenty_dsl/src/builders/and_then_builder.dart';
-import 'package:valenty_dsl/src/builders/domain_object_builder.dart';
-import 'package:valenty_dsl/src/builders/assertion_builder.dart';
-import 'package:valenty_dsl/src/builders/feature_scenario.dart';
-import 'package:valenty_dsl/src/runner/scenario_runner.dart';
+import 'package:valenty_test/src/core/phantom_types.dart';
+import 'package:valenty_test/src/core/scenario_builder.dart';
+import 'package:valenty_test/src/core/step_record.dart';
+import 'package:valenty_test/src/core/test_context.dart';
+import 'package:valenty_test/src/builders/given_builder.dart';
+import 'package:valenty_test/src/builders/when_builder.dart';
+import 'package:valenty_test/src/builders/then_builder.dart';
+import 'package:valenty_test/src/builders/and_then_builder.dart';
+import 'package:valenty_test/src/builders/domain_object_builder.dart';
+import 'package:valenty_test/src/builders/assertion_builder.dart';
+import 'package:valenty_test/src/builders/feature_scenario.dart';
+import 'package:valenty_test/src/runner/scenario_runner.dart';
 
 // ── Domain model (would be in user's project) ──
 
@@ -3043,7 +3043,7 @@ No changes needed. The existing dependencies (`meta: ^1.12.0`, `test: ^1.25.0`) 
 
 ## 8. Barrel Export
 
-### Updated `lib/valenty_dsl.dart`
+### Updated `lib/valenty_test.dart`
 
 ```dart
 /// Compile-time safe typed fluent builder DSL for Dart/Flutter testing
@@ -3189,7 +3189,7 @@ The implementation agent should follow this order:
 13. **Create** `lib/src/builders/feature_scenario.dart`
 14. **Delete** `lib/src/core/step.dart`
 15. **Delete** `lib/src/core/scenario.dart`
-16. **Update** `lib/valenty_dsl.dart` (barrel export)
+16. **Update** `lib/valenty_test.dart` (barrel export)
 17. **Delete** `test/core/step_test.dart`
 18. **Delete** `test/core/scenario_test.dart`
 19. **Create** all new test files

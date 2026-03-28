@@ -1,6 +1,6 @@
 import 'package:legacy_todo_app_example/models/todo.dart';
 import 'package:legacy_todo_app_example/services/todo_service.dart';
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import '../../setup/todo_test_environment.dart';
 import '../then/todo_then_builder.dart';

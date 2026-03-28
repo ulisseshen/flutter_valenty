@@ -6,7 +6,7 @@ const codexAgentTemplate = r'''# Valenty: UI-First Component Testing
 
 ## Overview
 
-This project uses **Valenty** (`package:valenty_dsl`) for component testing.
+This project uses **Valenty** (`package:valenty_test`) for component testing.
 The primary approach is **valentyTest** (UI-first with stubbed backends).
 The secondary approach is **typed fluent DSL builders** for logic-only tests.
 
@@ -267,7 +267,7 @@ OrderScenario('should calculate base price as unit price times quantity')
 
 ## Parameterized Tests
 
-Use `parameterizedTest()` from `package:valenty_dsl` to run one scenario against
+Use `parameterizedTest()` from `package:valenty_test` to run one scenario against
 multiple data sets without copy-paste:
 
 ```dart
@@ -297,7 +297,7 @@ parameterizedTest(
 - Default to valentyTest for Flutter apps, typed builders for pure Dart only
 - Never invent builder methods that do not exist in the code
 - Never use `.given()`, `.when()`, `.then()` with parentheses
-- Always import `package:valenty_dsl/valenty_dsl.dart` in builder files
+- Always import `package:valenty_test/valenty_test.dart` in builder files
 - Always import `package:test/test.dart` in ThenBuilder and AssertionBuilder files
 - Invalid tests will not compile -- the compiler enforces correct structure
 

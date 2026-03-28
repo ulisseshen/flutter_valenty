@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import '../../fakes/fake_notification_service.dart';
 import 'ordering_then_builder.dart';

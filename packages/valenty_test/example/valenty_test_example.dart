@@ -1,5 +1,5 @@
 // ignore_for_file: avoid_print
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 /// Example: Using Valenty's typed builder DSL for compile-time safe testing.
 ///

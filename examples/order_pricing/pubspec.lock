@@ -321,10 +321,10 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
-  valenty_dsl:
+  valenty_test:
     dependency: "direct dev"
     description:
-      path: "../../packages/valenty_dsl"
+      path: "../../packages/valenty_test"
       relative: true
     source: path
     version: "0.1.0"

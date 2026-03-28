@@ -1,6 +1,6 @@
 import 'package:test/test.dart';
-import 'package:valenty_dsl/src/fixtures/fixture_base.dart';
-import 'package:valenty_dsl/src/fixtures/test_data_builder.dart';
+import 'package:valenty_test/src/fixtures/fixture_base.dart';
+import 'package:valenty_test/src/fixtures/test_data_builder.dart';
 
 class _User {
   _User({required this.name, required this.age});

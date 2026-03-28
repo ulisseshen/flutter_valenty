@@ -27,7 +27,7 @@ String generateThenBuilder({
     );
   }
 
-  return """import 'package:valenty_dsl/valenty_dsl.dart';
+  return """import 'package:valenty_test/valenty_test.dart';
 
 $assertionImports
 /// ThenBuilder for the $featurePascal feature.

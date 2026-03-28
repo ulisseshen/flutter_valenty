@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:valenty_dsl/src/helpers/parameterized_test.dart';
+import 'package:valenty_test/src/helpers/parameterized_test.dart';
 
 void main() {
   group('parameterizedTest', () {

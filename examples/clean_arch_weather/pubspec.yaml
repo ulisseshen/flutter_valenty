@@ -10,5 +10,5 @@ dependencies:
 
 dev_dependencies:
   test: ^1.25.0
-  valenty_dsl:
-    path: ../../packages/valenty_dsl
+  valenty_test:
+    path: ../../packages/valenty_test

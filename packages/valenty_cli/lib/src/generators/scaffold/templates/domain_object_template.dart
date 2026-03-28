@@ -30,7 +30,7 @@ String generateDomainObjectBuilder({
   final constructorArgs =
       model.fields.map((f) => '${f.name}: _${f.name}').join(', ');
 
-  return """import 'package:valenty_dsl/valenty_dsl.dart';
+  return """import 'package:valenty_test/valenty_test.dart';
 
 import '$modelImportPath';
 import '../when/${featureSnake}_when_builder.dart';

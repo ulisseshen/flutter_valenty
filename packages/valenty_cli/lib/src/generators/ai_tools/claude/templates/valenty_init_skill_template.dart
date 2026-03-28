@@ -151,7 +151,7 @@ After collecting all answers:
 ```
 Valenty Setup Complete!
 
-  ✓ Added valenty_dsl to dev_dependencies
+  ✓ Added valenty_test to dev_dependencies
   ✓ Created .valenty.yaml configuration
   ✓ Generated Claude Code skill file
   ✓ Generated Cursor rule file

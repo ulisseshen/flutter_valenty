@@ -86,13 +86,13 @@ class InitCommand extends Command<void> {
         configProgress.complete('Created .valenty.yaml');
       }
 
-      // ── Step 5: Add valenty_dsl as dev_dependency ───────────────────
-      final depProgress = _logger.progress('Adding valenty_dsl dependency');
+      // ── Step 5: Add valenty_test as dev_dependency ───────────────────
+      final depProgress = _logger.progress('Adding valenty_test dependency');
       final added = await _addValentyDslDependency(pubspecFile);
       if (added) {
-        depProgress.complete('Added valenty_dsl to dev_dependencies');
+        depProgress.complete('Added valenty_test to dev_dependencies');
       } else {
-        depProgress.complete('valenty_dsl already in dev_dependencies');
+        depProgress.complete('valenty_test already in dev_dependencies');
       }
 
       // ── Step 6: Generate AI skill files ─────────────────────────────
@@ -131,7 +131,7 @@ class InitCommand extends Command<void> {
       _logger.success('Valenty initialized successfully!');
       _logger.info('');
       _logger.info('What was installed:');
-      _logger.info('  - valenty_dsl added to dev_dependencies');
+      _logger.info('  - valenty_test added to dev_dependencies');
       _logger.info('  - .valenty.yaml configuration created');
       _logger.info('  - AI skill files generated (your AI now knows Valenty)');
       _logger.info('');
@@ -174,7 +174,7 @@ class InitCommand extends Command<void> {
     }
   }
 
-  /// Add `valenty_dsl` to `dev_dependencies` in pubspec.yaml.
+  /// Add `valenty_test` to `dev_dependencies` in pubspec.yaml.
   ///
   /// Returns `true` if added, `false` if already present.
   Future<bool> _addValentyDslDependency(File pubspecFile) async {
@@ -184,7 +184,7 @@ class InitCommand extends Command<void> {
     // Check if already present
     if (yaml['dev_dependencies'] is YamlMap) {
       final devDeps = yaml['dev_dependencies'] as YamlMap;
-      if (devDeps.containsKey('valenty_dsl')) {
+      if (devDeps.containsKey('valenty_test')) {
         return false;
       }
     }
@@ -193,9 +193,9 @@ class InitCommand extends Command<void> {
 
     // Ensure dev_dependencies section exists
     if (yaml['dev_dependencies'] == null) {
-      editor.update(['dev_dependencies'], {'valenty_dsl': '^0.1.0'});
+      editor.update(['dev_dependencies'], {'valenty_test': '^0.1.0'});
     } else {
-      editor.update(['dev_dependencies', 'valenty_dsl'], '^0.1.0');
+      editor.update(['dev_dependencies', 'valenty_test'], '^0.1.0');
     }
 
     await pubspecFile.writeAsString(editor.toString());

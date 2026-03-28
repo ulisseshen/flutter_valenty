@@ -35,7 +35,7 @@ String generateAssertionBuilder({
   }
 
   return """import 'package:test/test.dart';
-import 'package:valenty_dsl/valenty_dsl.dart';
+import 'package:valenty_test/valenty_test.dart';
 
 import '$modelImportPath';
 import '${featureSnake}_then_builder.dart';
