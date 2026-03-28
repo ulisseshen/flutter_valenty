@@ -332,7 +332,8 @@ class ProjectIntrospector {
 
     // Match classes (including abstract) but not enums
     final classRe = RegExp(
-        r'(?:abstract\s+)?class\s+(\w+)\s*(?:\{|extends|implements|with)',);
+      r'(?:abstract\s+)?class\s+(\w+)\s*(?:\{|extends|implements|with)',
+    );
     for (final match in classRe.allMatches(cleanSource)) {
       final className = match.group(1)!;
 

@@ -13,12 +13,15 @@ String generateAssertionBuilder({
   final hasMethods = StringBuffer();
   for (final field in model.fields) {
     hasMethods.writeln(
-        '  /// Assert the ${model.camelCase} has the expected ${field.name}.',);
+      '  /// Assert the ${model.camelCase} has the expected ${field.name}.',
+    );
     hasMethods.writeln(
-        '  $className has${field.pascalCase}(${field.type} expected) {',);
+      '  $className has${field.pascalCase}(${field.type} expected) {',
+    );
     hasMethods.writeln('    addAssertionStep((ctx) {');
     hasMethods.writeln(
-        "      final ${model.camelCase} = ctx.get<${model.className}>('${model.camelCase}');",);
+      "      final ${model.camelCase} = ctx.get<${model.className}>('${model.camelCase}');",
+    );
     hasMethods.writeln('      expect(');
     hasMethods.writeln('        ${model.camelCase}.${field.name},');
     hasMethods.writeln('        equals(expected),');
