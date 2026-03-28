@@ -33,10 +33,7 @@ class BuilderValidator {
       return result;
     }
 
-    final featureDirs = featuresDir
-        .listSync()
-        .whereType<Directory>()
-        .toList()
+    final featureDirs = featuresDir.listSync().whereType<Directory>().toList()
       ..sort((a, b) => p.basename(a.path).compareTo(p.basename(b.path)));
 
     if (featureDirs.isEmpty) {
@@ -183,8 +180,7 @@ class BuilderValidator {
     }
 
     // Check createGivenBuilder override
-    final createGivenPattern =
-        RegExp(r'createGivenBuilder\s*\(');
+    final createGivenPattern = RegExp(r'createGivenBuilder\s*\(');
     if (!createGivenPattern.hasMatch(content)) {
       result.addError(
         'Missing createGivenBuilder() override',
@@ -276,8 +272,7 @@ class BuilderValidator {
         }
 
         // Check for domain methods (methods returning a builder)
-        final domainMethodPattern =
-            RegExp(r'\w+\s+\w+\(\s*\)\s*(=>|{)');
+        final domainMethodPattern = RegExp(r'\w+\s+\w+\(\s*\)\s*(=>|{)');
         if (!domainMethodPattern.hasMatch(content)) {
           result.addWarning(
             'GivenBuilder has no domain object methods',
@@ -298,8 +293,8 @@ class BuilderValidator {
       }
 
       // Check if this is a DomainObjectBuilder in given phase
-      final extendsDomainBuilder =
-          RegExp(r'class\s+(\w+)\s+extends\s+DomainObjectBuilder\s*<\s*NeedsWhen\s*>');
+      final extendsDomainBuilder = RegExp(
+          r'class\s+(\w+)\s+extends\s+DomainObjectBuilder\s*<\s*NeedsWhen\s*>',);
       final domainMatch = extendsDomainBuilder.firstMatch(content);
 
       if (domainMatch != null) {
@@ -336,7 +331,8 @@ class BuilderValidator {
           result.addWarning(
             '$className is missing "when" transition getter',
             file: relativePath,
-            suggestion: 'Add a "get when" getter to transition to the When phase.',
+            suggestion:
+                'Add a "get when" getter to transition to the When phase.',
           );
         }
         if (!hasAndGetter) {
@@ -428,8 +424,7 @@ class BuilderValidator {
         }
 
         // Check for action methods
-        final actionMethodPattern =
-            RegExp(r'\w+\s+\w+\(\s*\)\s*(=>|{)');
+        final actionMethodPattern = RegExp(r'\w+\s+\w+\(\s*\)\s*(=>|{)');
         if (!actionMethodPattern.hasMatch(content)) {
           result.addWarning(
             'WhenBuilder has no action methods',
@@ -450,8 +445,8 @@ class BuilderValidator {
       }
 
       // Check if this is a DomainObjectBuilder in when phase
-      final extendsDomainBuilder =
-          RegExp(r'class\s+(\w+)\s+extends\s+DomainObjectBuilder\s*<\s*NeedsThen\s*>');
+      final extendsDomainBuilder = RegExp(
+          r'class\s+(\w+)\s+extends\s+DomainObjectBuilder\s*<\s*NeedsThen\s*>',);
       final domainMatch = extendsDomainBuilder.firstMatch(content);
 
       if (domainMatch != null) {
@@ -463,8 +458,7 @@ class BuilderValidator {
           result.addError(
             '$className is missing applyToContext() override',
             file: relativePath,
-            suggestion:
-                'Override applyToContext(TestContext ctx) to execute '
+            suggestion: 'Override applyToContext(TestContext ctx) to execute '
                 'the use case logic.',
           );
         }

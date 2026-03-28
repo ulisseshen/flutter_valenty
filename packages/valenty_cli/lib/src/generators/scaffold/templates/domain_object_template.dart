@@ -18,7 +18,8 @@ String generateDomainObjectBuilder({
   // Generate with*() methods
   final withMethods = StringBuffer();
   for (final field in model.fields) {
-    withMethods.writeln('  $className with${field.pascalCase}(${field.type} ${field.name}) {');
+    withMethods.writeln(
+        '  $className with${field.pascalCase}(${field.type} ${field.name}) {',);
     withMethods.writeln('    _${field.name} = ${field.name};');
     withMethods.writeln('    return this;');
     withMethods.writeln('  }');
@@ -26,9 +27,8 @@ String generateDomainObjectBuilder({
   }
 
   // Generate constructor args for applyToContext
-  final constructorArgs = model.fields
-      .map((f) => '${f.name}: _${f.name}')
-      .join(', ');
+  final constructorArgs =
+      model.fields.map((f) => '${f.name}: _${f.name}').join(', ');
 
   return """import 'package:valenty_dsl/valenty_dsl.dart';
 

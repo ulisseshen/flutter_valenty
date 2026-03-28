@@ -100,10 +100,8 @@ class ModelAnalyzer {
 
     // Also detect enums so we can skip them.
     final enumPattern = RegExp(r'enum\s+(\w+)\s*\{');
-    final enumNames = enumPattern
-        .allMatches(cleanSource)
-        .map((m) => m.group(1)!)
-        .toSet();
+    final enumNames =
+        enumPattern.allMatches(cleanSource).map((m) => m.group(1)!).toSet();
 
     for (final classMatch in classPattern.allMatches(cleanSource)) {
       final isAbstract = classMatch.group(1) != null;
@@ -153,17 +151,18 @@ class ModelAnalyzer {
 
       // Strategy 2: If no final fields found, try constructor parameters
       if (fields.isEmpty) {
-        final constructorFields =
-            _parseConstructorParams(classBody, className);
+        final constructorFields = _parseConstructorParams(classBody, className);
         fields.addAll(constructorFields);
       }
 
       if (fields.isNotEmpty) {
-        models.add(ModelInfo(
-          className: className,
-          fields: fields,
-          isAbstract: isAbstract,
-        ),);
+        models.add(
+          ModelInfo(
+            className: className,
+            fields: fields,
+            isAbstract: isAbstract,
+          ),
+        );
       }
     }
 
@@ -174,8 +173,7 @@ class ModelAnalyzer {
   ///
   /// Matches: `String`, `int?`, `List<Product>`, `Map<String, int>`,
   /// `Future<Order?>`, `Map<String, List<int>>`, etc.
-  static const _typePatternStr =
-      r'[\w]+(?:<[\w<>,?\s]+>)?\??';
+  static const _typePatternStr = r'[\w]+(?:<[\w<>,?\s]+>)?\??';
 
   /// Extract the body of a class (everything between { and matching }).
   String? _extractClassBody(String source, int startAfterBrace) {

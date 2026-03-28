@@ -12,14 +12,18 @@ String generateAssertionBuilder({
   // Generate has*() methods for each field
   final hasMethods = StringBuffer();
   for (final field in model.fields) {
-    hasMethods.writeln('  /// Assert the ${model.camelCase} has the expected ${field.name}.');
-    hasMethods.writeln('  $className has${field.pascalCase}(${field.type} expected) {');
+    hasMethods.writeln(
+        '  /// Assert the ${model.camelCase} has the expected ${field.name}.',);
+    hasMethods.writeln(
+        '  $className has${field.pascalCase}(${field.type} expected) {',);
     hasMethods.writeln('    addAssertionStep((ctx) {');
-    hasMethods.writeln("      final ${model.camelCase} = ctx.get<${model.className}>('${model.camelCase}');");
+    hasMethods.writeln(
+        "      final ${model.camelCase} = ctx.get<${model.className}>('${model.camelCase}');",);
     hasMethods.writeln('      expect(');
     hasMethods.writeln('        ${model.camelCase}.${field.name},');
     hasMethods.writeln('        equals(expected),');
-    hasMethods.writeln("        reason: 'Expected ${field.name} to be \$expected',");
+    hasMethods
+        .writeln("        reason: 'Expected ${field.name} to be \$expected',");
     hasMethods.writeln('      );');
     hasMethods.writeln('    });');
     hasMethods.writeln('    return this;');

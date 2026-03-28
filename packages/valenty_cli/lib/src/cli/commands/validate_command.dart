@@ -39,7 +39,8 @@ class ValidateCommand extends Command<void> {
   @override
   Future<void> run() async {
     final featureFilter = argResults?['feature'] as String?;
-    final projectPath = argResults?['path'] as String? ?? Directory.current.path;
+    final projectPath =
+        argResults?['path'] as String? ?? Directory.current.path;
 
     _logger.info('Valenty Validate');
     _logger.info('=' * 40);
@@ -113,10 +114,8 @@ class ValidateCommand extends Command<void> {
     final directPath = p.join(projectPath, outputDir);
     if (Directory(directPath).existsSync()) {
       // Check if there are feature-like subdirectories
-      final dirs = Directory(directPath)
-          .listSync()
-          .whereType<Directory>()
-          .where((d) {
+      final dirs =
+          Directory(directPath).listSync().whereType<Directory>().where((d) {
         final name = p.basename(d.path);
         return !name.startsWith('.');
       });

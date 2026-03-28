@@ -93,8 +93,6 @@ class ValidationResult {
   bool get hasWarnings => features.any((f) => f.hasWarnings);
   bool get isValid => !hasErrors;
 
-  int get totalErrors =>
-      features.fold(0, (sum, f) => sum + f.errorCount);
-  int get totalWarnings =>
-      features.fold(0, (sum, f) => sum + f.warningCount);
+  int get totalErrors => features.fold(0, (sum, f) => sum + f.errorCount);
+  int get totalWarnings => features.fold(0, (sum, f) => sum + f.warningCount);
 }

@@ -29,7 +29,6 @@ import '../scaffold_scenario.dart';
 
 void main() {
   group('Scaffold Feature', () {
-
     // ─── QA Scenario 1 ─────────────────────────────────────────────────
     // "Given a Dart project with a Product model (name: String, unitPrice: double),
     //  when scaffold is run for feature 'order' with the Product model,

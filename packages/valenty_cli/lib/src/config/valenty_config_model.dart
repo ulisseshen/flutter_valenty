@@ -37,15 +37,11 @@ class ValentyConfigModel {
           const [],
       fixtureSetupPattern:
           yaml['fixture_setup_pattern'] as String? ?? 'arrange_act_assert',
-      testDoublesPattern:
-          yaml['test_doubles_pattern'] as String? ?? 'mock',
-      testOrganization:
-          yaml['test_organization'] as String? ?? 'by_feature',
-      dslOutputDirectory:
-          yaml['dsl_output_directory'] as String? ?? 'test/',
+      testDoublesPattern: yaml['test_doubles_pattern'] as String? ?? 'mock',
+      testOrganization: yaml['test_organization'] as String? ?? 'by_feature',
+      dslOutputDirectory: yaml['dsl_output_directory'] as String? ?? 'test/',
       language: yaml['language'] as String? ?? 'en',
-      aiToolsAutoDetect:
-          yaml['ai_tools_auto_detect'] as bool? ?? true,
+      aiToolsAutoDetect: yaml['ai_tools_auto_detect'] as bool? ?? true,
       aiToolsGenerateFor: (yaml['ai_tools_generate_for'] as YamlList?)
               ?.map((e) => e as String)
               .toList() ??
@@ -110,18 +106,13 @@ class ValentyConfigModel {
       projectType: projectType ?? this.projectType,
       pyramidModel: pyramidModel ?? this.pyramidModel,
       pyramidLevels: pyramidLevels ?? this.pyramidLevels,
-      fixtureSetupPattern:
-          fixtureSetupPattern ?? this.fixtureSetupPattern,
-      testDoublesPattern:
-          testDoublesPattern ?? this.testDoublesPattern,
+      fixtureSetupPattern: fixtureSetupPattern ?? this.fixtureSetupPattern,
+      testDoublesPattern: testDoublesPattern ?? this.testDoublesPattern,
       testOrganization: testOrganization ?? this.testOrganization,
-      dslOutputDirectory:
-          dslOutputDirectory ?? this.dslOutputDirectory,
+      dslOutputDirectory: dslOutputDirectory ?? this.dslOutputDirectory,
       language: language ?? this.language,
-      aiToolsAutoDetect:
-          aiToolsAutoDetect ?? this.aiToolsAutoDetect,
-      aiToolsGenerateFor:
-          aiToolsGenerateFor ?? this.aiToolsGenerateFor,
+      aiToolsAutoDetect: aiToolsAutoDetect ?? this.aiToolsAutoDetect,
+      aiToolsGenerateFor: aiToolsGenerateFor ?? this.aiToolsGenerateFor,
     );
   }
 }

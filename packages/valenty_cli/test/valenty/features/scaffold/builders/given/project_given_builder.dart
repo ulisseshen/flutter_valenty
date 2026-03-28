@@ -33,7 +33,8 @@ class ProjectGivenBuilder extends DomainObjectBuilder<NeedsWhen> {
 
   @override
   void applyToContext(TestContext ctx) {
-    final tempDir = Directory.systemTemp.createTempSync('valenty_scaffold_test_');
+    final tempDir =
+        Directory.systemTemp.createTempSync('valenty_scaffold_test_');
     ctx.set('projectPath', tempDir.path);
     ctx.set('tempDir', tempDir);
 

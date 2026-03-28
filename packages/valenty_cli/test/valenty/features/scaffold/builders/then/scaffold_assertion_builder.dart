@@ -50,7 +50,8 @@ class ScaffoldAssertionBuilder extends AssertionBuilder {
       final outputDir = _outputDir(ctx);
       final featureName = ctx.get<String>('featureName');
       final file = File(
-        p.join(outputDir, 'builders', 'given', '${featureName}_given_builder.dart'),
+        p.join(outputDir, 'builders', 'given',
+            '${featureName}_given_builder.dart',),
       );
       expect(
         file.existsSync(),
@@ -67,7 +68,8 @@ class ScaffoldAssertionBuilder extends AssertionBuilder {
       final outputDir = _outputDir(ctx);
       final snakeCase = _toSnakeCase(className);
       final file = File(
-        p.join(outputDir, 'builders', 'given', '${snakeCase}_given_builder.dart'),
+        p.join(
+            outputDir, 'builders', 'given', '${snakeCase}_given_builder.dart',),
       );
       expect(
         file.existsSync(),
@@ -84,7 +86,8 @@ class ScaffoldAssertionBuilder extends AssertionBuilder {
       final outputDir = _outputDir(ctx);
       final featureName = ctx.get<String>('featureName');
       final file = File(
-        p.join(outputDir, 'builders', 'when', '${featureName}_when_builder.dart'),
+        p.join(
+            outputDir, 'builders', 'when', '${featureName}_when_builder.dart',),
       );
       expect(
         file.existsSync(),
@@ -101,7 +104,8 @@ class ScaffoldAssertionBuilder extends AssertionBuilder {
       final outputDir = _outputDir(ctx);
       final featureName = ctx.get<String>('featureName');
       final file = File(
-        p.join(outputDir, 'builders', 'then', '${featureName}_then_builder.dart'),
+        p.join(
+            outputDir, 'builders', 'then', '${featureName}_then_builder.dart',),
       );
       expect(
         file.existsSync(),
@@ -118,7 +122,8 @@ class ScaffoldAssertionBuilder extends AssertionBuilder {
       final outputDir = _outputDir(ctx);
       final snakeCase = _toSnakeCase(className);
       final file = File(
-        p.join(outputDir, 'builders', 'then', '${snakeCase}_assertion_builder.dart'),
+        p.join(outputDir, 'builders', 'then',
+            '${snakeCase}_assertion_builder.dart',),
       );
       expect(
         file.existsSync(),
@@ -145,8 +150,7 @@ class ScaffoldAssertionBuilder extends AssertionBuilder {
       expect(
         files.length,
         equals(expected),
-        reason:
-            'Expected $expected generated files, found ${files.length}: '
+        reason: 'Expected $expected generated files, found ${files.length}: '
             '${files.map((f) => p.relative(f.path, from: outputDir)).toList()}',
       );
     });

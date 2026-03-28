@@ -23,7 +23,8 @@ class ProjectDetector {
 
     final dependencies = <String>[];
     if (yaml['dependencies'] is YamlMap) {
-      dependencies.addAll((yaml['dependencies'] as YamlMap).keys.cast<String>());
+      dependencies
+          .addAll((yaml['dependencies'] as YamlMap).keys.cast<String>());
     }
 
     final devDependencies = <String>[];
@@ -37,13 +38,12 @@ class ProjectDetector {
 
     String? dartSdkConstraint;
     if (yaml['environment'] is YamlMap) {
-      dartSdkConstraint =
-          (yaml['environment'] as YamlMap)['sdk'] as String?;
+      dartSdkConstraint = (yaml['environment'] as YamlMap)['sdk'] as String?;
     }
 
     final flutterSection = yaml['flutter'];
-    final hasPlugin = flutterSection is YamlMap &&
-        flutterSection.containsKey('plugin');
+    final hasPlugin =
+        flutterSection is YamlMap && flutterSection.containsKey('plugin');
 
     final ProjectType type;
     if (hasFlutter && hasPlugin) {

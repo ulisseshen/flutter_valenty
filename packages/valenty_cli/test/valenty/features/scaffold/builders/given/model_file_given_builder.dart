@@ -42,13 +42,11 @@ class ModelFileGivenBuilder extends DomainObjectBuilder<NeedsWhen> {
     final projectPath = ctx.get<String>('projectPath');
 
     // Build the Dart class source
-    final fieldDeclarations = _fields.entries
-        .map((e) => '  final ${e.value} ${e.key};')
-        .join('\n');
+    final fieldDeclarations =
+        _fields.entries.map((e) => '  final ${e.value} ${e.key};').join('\n');
 
-    final constructorParams = _fields.entries
-        .map((e) => '    required this.${e.key},')
-        .join('\n');
+    final constructorParams =
+        _fields.entries.map((e) => '    required this.${e.key},').join('\n');
 
     final classSource = '''
 class $_className {

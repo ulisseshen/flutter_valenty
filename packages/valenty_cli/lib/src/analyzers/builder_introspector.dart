@@ -156,10 +156,10 @@ class BuilderIntrospector {
       final parameters = rawParams.isEmpty
           ? <String>[]
           : rawParams
-                .split(',')
-                .map((p) => p.trim().replaceAll(RegExp(r'\s+'), ' '))
-                .where((p) => p.isNotEmpty)
-                .toList();
+              .split(',')
+              .map((p) => p.trim().replaceAll(RegExp(r'\s+'), ' '))
+              .where((p) => p.isNotEmpty)
+              .toList();
 
       methods.add(
         MethodInfo(

@@ -41,9 +41,8 @@ class ScaffoldGenerator {
     final modelAbsolutePaths = <ModelInfo, String>{};
 
     for (final modelPath in modelPaths) {
-      final absolutePath = p.isAbsolute(modelPath)
-          ? modelPath
-          : p.join(projectPath, modelPath);
+      final absolutePath =
+          p.isAbsolute(modelPath) ? modelPath : p.join(projectPath, modelPath);
 
       final progress = _logger.progress('Parsing $modelPath');
       try {
@@ -375,13 +374,10 @@ class ScaffoldGenerator {
   String _toPascalCase(String input) {
     // Handle snake_case input
     if (input.contains('_')) {
-      return input
-          .split('_')
-          .map((part) {
-            if (part.isEmpty) return '';
-            return part[0].toUpperCase() + part.substring(1).toLowerCase();
-          })
-          .join();
+      return input.split('_').map((part) {
+        if (part.isEmpty) return '';
+        return part[0].toUpperCase() + part.substring(1).toLowerCase();
+      }).join();
     }
     // Handle camelCase input — just capitalize first letter
     if (input.isNotEmpty) {

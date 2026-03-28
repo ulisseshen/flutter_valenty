@@ -152,12 +152,14 @@ class ProjectIntrospector {
       }
 
       if (builders.isNotEmpty) {
-        features.add(FeatureInfo(
-          name: featureName,
-          directoryPath: featureDir.path,
-          scenarioClass: scenarioClass,
-          builders: builders,
-        ),);
+        features.add(
+          FeatureInfo(
+            name: featureName,
+            directoryPath: featureDir.path,
+            scenarioClass: scenarioClass,
+            builders: builders,
+          ),
+        );
       }
     }
 
@@ -183,13 +185,15 @@ class ProjectIntrospector {
 
       final methods = _extractMethods(classBody, className);
 
-      results.add(BuilderInfo(
-        className: className,
-        kind: kind,
-        filePath: filePath,
-        superclass: superclass,
-        methods: methods,
-      ),);
+      results.add(
+        BuilderInfo(
+          className: className,
+          kind: kind,
+          filePath: filePath,
+          superclass: superclass,
+          methods: methods,
+        ),
+      );
     }
 
     return results;
@@ -259,11 +263,13 @@ class ProjectIntrospector {
 
       final parameters = paramsRaw.isEmpty ? <String>[] : [paramsRaw];
 
-      methods.add(MethodInfo(
-        name: methodName,
-        returnType: returnType,
-        parameters: parameters,
-      ),);
+      methods.add(
+        MethodInfo(
+          name: methodName,
+          returnType: returnType,
+          parameters: parameters,
+        ),
+      );
     }
 
     // Also extract getters (when, and, then)
@@ -275,10 +281,12 @@ class ProjectIntrospector {
       if (seenNames.contains(getterName)) continue;
       seenNames.add(getterName);
 
-      methods.add(MethodInfo(
-        name: getterName,
-        returnType: returnType,
-      ),);
+      methods.add(
+        MethodInfo(
+          name: getterName,
+          returnType: returnType,
+        ),
+      );
     }
 
     return methods;
@@ -323,7 +331,8 @@ class ProjectIntrospector {
         enumRe.allMatches(cleanSource).map((m) => m.group(1)!).toSet();
 
     // Match classes (including abstract) but not enums
-    final classRe = RegExp(r'(?:abstract\s+)?class\s+(\w+)\s*(?:\{|extends|implements|with)');
+    final classRe = RegExp(
+        r'(?:abstract\s+)?class\s+(\w+)\s*(?:\{|extends|implements|with)',);
     for (final match in classRe.allMatches(cleanSource)) {
       final className = match.group(1)!;
 
@@ -342,15 +351,18 @@ class ProjectIntrospector {
       if (afterMatch == -1) continue;
 
       final classBody = _extractClassBody(cleanSource, match.start);
-      final properties = _extractProperties(classBody, cleanSource, match.start);
+      final properties =
+          _extractProperties(classBody, cleanSource, match.start);
 
       // Only include classes that have properties (domain models)
       if (properties.isNotEmpty) {
-        models.add(DomainModelInfo(
-          className: className,
-          filePath: filePath,
-          properties: properties,
-        ),);
+        models.add(
+          DomainModelInfo(
+            className: className,
+            filePath: filePath,
+            properties: properties,
+          ),
+        );
       }
     }
 
@@ -381,10 +393,12 @@ class ProjectIntrospector {
       if (linePrefix.contains('static')) continue;
 
       seenNames.add(name);
-      properties.add(DomainPropertyInfo(
-        name: name,
-        type: _normalizeType(type),
-      ),);
+      properties.add(
+        DomainPropertyInfo(
+          name: name,
+          type: _normalizeType(type),
+        ),
+      );
     }
 
     // Strategy 2: If no final fields found, look for `required this.x`

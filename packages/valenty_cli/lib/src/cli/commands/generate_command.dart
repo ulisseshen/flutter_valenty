@@ -36,8 +36,7 @@ class _SkillsSubCommand extends Command<void> {
   String get name => 'skills';
 
   @override
-  String get description =>
-      'Generate AI tool skill files for detected tools.';
+  String get description => 'Generate AI tool skill files for detected tools.';
 
   @override
   Future<void> run() async {
@@ -58,7 +57,8 @@ class _SkillsSubCommand extends Command<void> {
         introspecting.complete('No features or domain models detected');
       }
     } catch (_) {
-      introspecting.complete('Introspection skipped (will use static templates)');
+      introspecting
+          .complete('Introspection skipped (will use static templates)');
       snapshot = null;
     }
 
