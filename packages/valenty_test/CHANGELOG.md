@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0
+
+- Rewrite README for zero-friction onboarding: complete working examples, architecture guide, troubleshooting, and AI agent instructions
+
+## 0.1.3
+
+- Add analyzer conflict troubleshooting to README
+
 ## 0.1.2
 
 - Fix dependency conflict with riverpod_generator by requiring test ^1.31.0 (supports analyzer <13.0.0)
