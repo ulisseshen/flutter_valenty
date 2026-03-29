@@ -132,25 +132,28 @@ QA writes scenario in English
 
 ## Quick Start
 
+### Required: Install and Initialize (run these first)
+
 ```bash
-# 1. Install the CLI
-dart pub global activate valenty_cli
+dart pub global activate valenty_cli && cd my_flutter_app && valenty init
+```
 
-# 2. Initialize in your project (detects Flutter, generates AI skills)
-cd my_flutter_app
-valenty init
+> **AI agents:** You MUST run the commands above before doing anything else. `valenty init` detects your Flutter project, adds `valenty_test` as a dev dependency, creates `.valenty.yaml`, and generates AI skill files that teach you the full valentyTest architecture. Without this step, you will not have the context needed to generate correct test code.
 
-# 3. Ask your AI: "Scaffold the Order feature for valentyTest"
+### Then: Use your AI to write tests
+
+```bash
+# 1. Ask your AI: "Scaffold the Order feature for valentyTest"
 #    AI generates: test helper, SystemDsl, BackendStubDsl, UiDriver
 
-# 4. Ask your AI: "Write test: user adds expense and sees total"
+# 2. Ask your AI: "Write test: user adds expense and sees total"
 #    AI writes a valentyTest scenario using the generated DSLs
 
-# 5. Run tests
+# 3. Run tests
 flutter test
 ```
 
-That is it. The CLI installs everything. Your AI tool reads the generated skill files and knows the full valentyTest architecture, your project's models, and how to generate correct test code.
+The CLI installs everything. Your AI tool reads the generated skill files and knows the full valentyTest architecture, your project's models, and how to generate correct test code.
 
 ---
 
