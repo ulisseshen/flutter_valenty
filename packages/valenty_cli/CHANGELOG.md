@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.1
+
+- Add mandatory AI setup instructions to README
+- Fix repository and homepage URLs
+
 ## 0.1.0
 
 - Initial release

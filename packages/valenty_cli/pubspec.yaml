@@ -1,8 +1,8 @@
 name: valenty_cli
 description: AI-powered component test generation CLI for Flutter apps with compile-time safety.
-version: 0.1.0
-repository: https://github.com/valenty-dev/valenty
-homepage: https://github.com/valenty-dev/valenty
+version: 0.1.1
+repository: https://github.com/ulisseshen/flutter_valenty
+homepage: https://github.com/ulisseshen/flutter_valenty
 topics:
   - testing
   - component-testing
