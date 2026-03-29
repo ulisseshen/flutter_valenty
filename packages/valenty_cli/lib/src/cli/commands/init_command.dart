@@ -135,37 +135,21 @@ class InitCommand extends Command<void> {
       _logger.info('  - .valenty.yaml configuration created');
       _logger.info('  - AI skill files generated (your AI now knows Valenty)');
       _logger.info('');
-      _logger.info('Next steps — tell your AI:');
+      _logger.info('Next step — tell your AI:');
       _logger.info('');
-      if (isFlutterProject) {
-        _logger.info(
-          '  1. "Scaffold the Order feature for valentyTest"',
-        );
-        _logger.info(
-          '     -> AI generates: test helper, SystemDsl, BackendStubDsl, UiDriver',
-        );
-        _logger.info('');
-        _logger.info(
-          '  2. "Write test: user adds an expense and sees the total"',
-        );
-        _logger.info(
-          '     -> AI writes a valentyTest scenario using the generated DSLs',
-        );
-      } else {
-        _logger.info(
-          '  1. "Scaffold the Order feature builders for acceptance testing"',
-        );
-        _logger.info(
-          '     -> AI generates: Scenario, GivenBuilder, WhenBuilder, ThenBuilder',
-        );
-        _logger.info('');
-        _logger.info(
-          '  2. "Write test for: Given a product with unit price \$20..."',
-        );
-        _logger.info(
-          '     -> AI writes a typed builder scenario using the generated builders',
-        );
-      }
+      _logger.info(
+        '  "Generate my first valentyTest scenarios"',
+      );
+      _logger.info('');
+      _logger.info(
+        '  The AI will scan your project, pick the best feature to test,',
+      );
+      _logger.info(
+        '  and generate: test helper, SystemDsl, BackendStubDsl, UiDriver,',
+      );
+      _logger.info(
+        '  and 3 starter test scenarios.',
+      );
       _logger.info('');
       _logger.info('Run "valenty doctor" to verify your setup.');
     } on FileSystemException {
@@ -193,9 +177,9 @@ class InitCommand extends Command<void> {
 
     // Ensure dev_dependencies section exists
     if (yaml['dev_dependencies'] == null) {
-      editor.update(['dev_dependencies'], {'valenty_test': '^0.1.0'});
+      editor.update(['dev_dependencies'], {'valenty_test': '^0.2.1'});
     } else {
-      editor.update(['dev_dependencies', 'valenty_test'], '^0.1.0');
+      editor.update(['dev_dependencies', 'valenty_test'], '^0.2.1');
     }
 
     await pubspecFile.writeAsString(editor.toString());

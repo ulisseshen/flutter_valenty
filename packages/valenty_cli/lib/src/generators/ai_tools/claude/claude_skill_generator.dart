@@ -50,21 +50,21 @@ class ClaudeSkillGenerator {
       '.claude/skills/valenty-test-writer/SKILL.md',
     );
 
-    // Generate onboarding skill
-    final onboardingDir = Directory(
-      p.join(projectPath, '.claude', 'skills', 'valenty-onboarding'),
+    // Generate first-tests skill (post-init guide)
+    final firstTestsDir = Directory(
+      p.join(projectPath, '.claude', 'skills', 'valenty-first-tests'),
     );
 
-    if (!onboardingDir.existsSync()) {
-      onboardingDir.createSync(recursive: true);
+    if (!firstTestsDir.existsSync()) {
+      firstTestsDir.createSync(recursive: true);
     }
 
-    final onboardingFile = File(p.join(onboardingDir.path, 'SKILL.md'));
-    onboardingFile.writeAsStringSync(valentyInitSkillTemplate);
+    final firstTestsFile = File(p.join(firstTestsDir.path, 'SKILL.md'));
+    firstTestsFile.writeAsStringSync(valentyInitSkillTemplate);
 
     _logger.info(
       '${lightGreen.wrap('✓')} Generated Claude skill: '
-      '.claude/skills/valenty-onboarding/SKILL.md',
+      '.claude/skills/valenty-first-tests/SKILL.md',
     );
   }
 

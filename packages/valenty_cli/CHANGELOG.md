@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0
+
+- Replace `valenty-onboarding` skill with `valenty-first-tests` — guides AI to scan project and generate first test scenarios after init
+- Fix: `valenty init` now adds `valenty_test: ^0.2.1` (was ^0.1.0)
+- Improved init success message: single clear next step instead of multiple options
+
 ## 0.1.2
 
 - Clarify that `valenty init` adds `valenty_test` to dev_dependencies
