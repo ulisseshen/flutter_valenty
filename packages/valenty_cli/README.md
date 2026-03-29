@@ -53,6 +53,10 @@ Generates skill/rule files for:
 
 See the [full documentation](https://github.com/ulisseshen/flutter_valenty) for the complete guide.
 
+## Credits
+
+Built on the [Modern Test Pyramid](https://journal.optivem.com/p/modern-test-pyramid) by [Valentina Jemuovic](https://www.linkedin.com/in/valentinaj/) ([Optivem Journal](https://journal.optivem.com)).
+
 ## License
 
 MIT

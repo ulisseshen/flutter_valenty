@@ -548,6 +548,17 @@ cd examples/clean_arch_weather && dart test
 
 ---
 
+## Credits
+
+Valenty is built on the **Modern Test Pyramid** methodology created by [Valentina Jemuovic](https://www.linkedin.com/in/valentinaj/).
+
+- [Optivem Journal (Substack)](https://journal.optivem.com) — Modern Test Pyramid, TDD Cycles, ATDD, Component Testing
+- [LinkedIn](https://www.linkedin.com/in/valentinaj/) — Valentina Jemuovic
+
+The name "Valenty" is a tribute to Valentina's work in redefining how we think about testing.
+
+---
+
 ## License
 
 MIT
