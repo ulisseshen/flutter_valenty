@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0
+
+- Monorepo support: detect git root and ask where to install AI skill files
+- Skills are now installed at git root by default (where Claude Code, Cursor, Codex look)
+- Interactive prompt when running from a subdirectory of a git repo
+
 ## 0.2.0
 
 - Replace `valenty-onboarding` skill with `valenty-first-tests` — guides AI to scan project and generate first test scenarios after init

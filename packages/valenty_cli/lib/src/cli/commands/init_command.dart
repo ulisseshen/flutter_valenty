@@ -55,10 +55,54 @@ class InitCommand extends Command<void> {
         'Detected: ${projectInfo.type.name} (${projectInfo.name})',
       );
 
-      // ── Step 3: Detect AI tools ─────────────────────────────────────
+      // ── Step 3: Detect git root and skill install path ──────────────
+      final gitRoot = _findGitRoot(projectPath);
+      final String skillInstallPath;
+
+      if (gitRoot != null && gitRoot != projectPath) {
+        // We're in a subdirectory of a git repo (monorepo)
+        final relativePath = p.relative(projectPath, from: gitRoot);
+        _logger.info('');
+        _logger.info(
+          'Monorepo detected: you are in $relativePath/',
+        );
+        _logger.info(
+          'Git root is at: $gitRoot',
+        );
+        _logger.info('');
+        _logger.info(
+          'AI tools (Claude Code, Cursor, Codex) look for skill files '
+          'at the git root,',
+        );
+        _logger.info(
+          'not inside subdirectories.',
+        );
+        _logger.info('');
+
+        final choice = _logger.chooseOne(
+          'Where should I install AI skill files?',
+          choices: [
+            'git-root',
+            'project-dir',
+          ],
+          display: (choice) {
+            if (choice == 'git-root') {
+              return 'Git root: $gitRoot (recommended — AI tools find them here)';
+            }
+            return 'Project dir: $projectPath (manual setup needed)';
+          },
+        );
+
+        skillInstallPath =
+            choice == 'git-root' ? gitRoot : projectPath;
+      } else {
+        skillInstallPath = projectPath;
+      }
+
+      // ── Step 4: Detect AI tools ─────────────────────────────────────
       final aiDetecting = _logger.progress('Detecting AI tools');
       final aiDetector = AiToolDetector();
-      final tools = aiDetector.detect(projectPath);
+      final tools = aiDetector.detect(skillInstallPath);
 
       if (tools.isEmpty) {
         aiDetecting.complete(
@@ -70,7 +114,7 @@ class InitCommand extends Command<void> {
         );
       }
 
-      // ── Step 4: Create .valenty.yaml ────────────────────────────────
+      // ── Step 5: Create .valenty.yaml ────────────────────────────────
       final configProgress = _logger.progress('Creating .valenty.yaml');
       final valentyConfig = ValentyConfig();
 
@@ -86,7 +130,7 @@ class InitCommand extends Command<void> {
         configProgress.complete('Created .valenty.yaml');
       }
 
-      // ── Step 5: Add valenty_test as dev_dependency ───────────────────
+      // ── Step 6: Add valenty_test as dev_dependency ───────────────────
       final depProgress = _logger.progress('Adding valenty_test dependency');
       final added = await _addValentyDslDependency(pubspecFile);
       if (added) {
@@ -95,11 +139,11 @@ class InitCommand extends Command<void> {
         depProgress.complete('valenty_test already in dev_dependencies');
       }
 
-      // ── Step 6: Generate AI skill files ─────────────────────────────
+      // ── Step 7: Generate AI skill files ─────────────────────────────
       final skillProgress = _logger.progress('Generating AI skill files');
       await _generateSkills(
         tools,
-        projectPath,
+        skillInstallPath,
         isFlutter: projectInfo.hasFlutter,
       );
       skillProgress.complete('AI skill files generated');
@@ -124,16 +168,14 @@ class InitCommand extends Command<void> {
           _logger.err(stderr);
         }
       }
-      // ── Step 8: Success message ─────────────────────────────────
-      final isFlutterProject = projectInfo.hasFlutter;
-
+      // ── Step 9: Success message ─────────────────────────────────
       _logger.info('');
       _logger.success('Valenty initialized successfully!');
       _logger.info('');
       _logger.info('What was installed:');
       _logger.info('  - valenty_test added to dev_dependencies');
       _logger.info('  - .valenty.yaml configuration created');
-      _logger.info('  - AI skill files generated (your AI now knows Valenty)');
+      _logger.info('  - AI skill files generated at: $skillInstallPath');
       _logger.info('');
       _logger.info('Next step — tell your AI:');
       _logger.info('');
@@ -184,6 +226,21 @@ class InitCommand extends Command<void> {
 
     await pubspecFile.writeAsString(editor.toString());
     return true;
+  }
+
+  /// Find the git root by walking up from [startPath].
+  ///
+  /// Returns `null` if no `.git` directory is found.
+  String? _findGitRoot(String startPath) {
+    var current = startPath;
+    while (true) {
+      if (Directory(p.join(current, '.git')).existsSync()) {
+        return current;
+      }
+      final parent = p.dirname(current);
+      if (parent == current) return null; // reached filesystem root
+      current = parent;
+    }
   }
 
   /// Generate AI skill files for detected (or default) tools.
