@@ -175,9 +175,9 @@ void valentyTest(
 
 ---
 
-## Step 4: Write the first 3 test scenarios
+## Step 4: Write happy-path scenarios
 
-Create `test/valenty/scenarios/<feature>_test.dart` with 3 scenarios:
+Create `test/valenty/scenarios/<feature>_test.dart` with happy-path scenarios:
 
 1. **Empty/default state** — what does the user see when there's no data?
 2. **Happy path** — user performs the main action successfully
@@ -219,9 +219,138 @@ void main() {
 
 ---
 
-## Step 5: Verify
+## Step 5: Write failure scenarios for ALL features
 
-Run the tests:
+**Do NOT stop at happy paths.** For every feature, generate failure scenarios:
+
+- **Network errors** — backend returns error, timeout, no connection
+- **Empty/invalid input** — user submits empty form, invalid data
+- **Validation errors** — server rejects request, returns validation messages
+- **Permission denied** — user not authorized for action
+- **Edge cases** — boundary values, max length, special characters
+- **Concurrent state** — loading states, retry after failure
+
+Create `test/valenty/scenarios/<feature>_failure_test.dart`:
+
+```dart
+void main() {
+  valentyTest(
+    'should show error message when backend fails',
+    setup: (backend) {
+      backend.stubError(Exception('Network error'));
+    },
+    body: (system, backend) async {
+      await system.openApp();
+      system.verifyErrorMessage('Something went wrong');
+    },
+  );
+
+  valentyTest(
+    'should show validation error for empty required fields',
+    body: (system, backend) async {
+      await system.openApp();
+      await system.submitEmptyForm();
+      system.verifyValidationError('Field is required');
+    },
+  );
+}
+```
+
+---
+
+## Step 6: Write parameterized tests for variations
+
+Use `parameterizedTest` from valenty_test for scenarios that repeat with
+different data. This avoids copy-pasting the same test with different values.
+
+```dart
+import 'package:valenty_test/valenty_test.dart';
+
+void main() {
+  parameterizedTest(
+    'should reject invalid email',
+    [
+      [''],                    // empty
+      ['not-an-email'],       // missing @
+      ['@no-local.com'],      // missing local part
+      ['user@'],              // missing domain
+      ['user @space.com'],    // contains space
+    ],
+    (List<dynamic> params) {
+      final email = params[0] as String;
+      valentyTest(
+        'email: "$email"',
+        body: (system, backend) async {
+          await system.openApp();
+          await system.enterEmail(email);
+          await system.submitForm();
+          system.verifyValidationError('Invalid email');
+        },
+      );
+    },
+  );
+
+  parameterizedTest(
+    'should format currency correctly',
+    [
+      [0.0, r'$0.00'],
+      [1.5, r'$1.50'],
+      [1000.0, r'$1,000.00'],
+      [99999.99, r'$99,999.99'],
+    ],
+    (List<dynamic> params) {
+      final amount = params[0] as double;
+      final expected = params[1] as String;
+      // Unit test — no UI needed
+      expect(formatCurrency(amount), equals(expected));
+    },
+  );
+}
+```
+
+---
+
+## Step 7: Write unit tests where acceptance tests aren't enough
+
+Acceptance tests (valentyTest) cover **user-facing behavior**. But some logic
+needs unit tests:
+
+- **Pure calculations** — tax, discounts, totals, formatting
+- **Data transformations** — model mapping, serialization, parsing
+- **Business rules** — eligibility checks, validation logic, state machines
+- **Edge cases in algorithms** — sorting, filtering, pagination logic
+
+Write these as plain `test()` with `parameterizedTest` for multiple cases:
+
+```dart
+import 'package:test/test.dart';
+import 'package:valenty_test/valenty_test.dart';
+
+void main() {
+  parameterizedTest(
+    'should calculate discount correctly',
+    [
+      [100.0, 0.10, 90.0],    // 10% off
+      [100.0, 0.25, 75.0],    // 25% off
+      [50.0, 0.50, 25.0],     // 50% off
+      [200.0, 0.0, 200.0],    // no discount
+      [200.0, 1.0, 0.0],      // 100% off
+    ],
+    (List<dynamic> params) {
+      final price = params[0] as double;
+      final rate = params[1] as double;
+      final expected = params[2] as double;
+      expect(applyDiscount(price, rate), equals(expected));
+    },
+  );
+}
+```
+
+---
+
+## Step 8: Verify
+
+Run all tests:
 ```bash
 flutter test test/valenty/
 ```
@@ -231,7 +360,7 @@ add them to the production service classes.
 
 ---
 
-## Step 6: Offer to upgrade skill scope
+## Step 9: Offer to upgrade skill scope
 
 After generating the first tests, use **AskUserQuestion** to ask:
 
