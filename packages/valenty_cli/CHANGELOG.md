@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.2
+
+- Simplify skill scope prompt: "This project only" vs "All my projects (recommended)"
+
 ## 0.3.1
 
 - Fix skill install scope: project (git root) vs user (~/) instead of git root vs project subdir

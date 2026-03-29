@@ -63,11 +63,6 @@ class InitCommand extends Command<void> {
       final String skillInstallPath;
 
       _logger.info('');
-      _logger.info(
-        'AI skill files teach your AI assistant (Claude, Cursor, etc.) '
-        'how to use Valenty.',
-      );
-      _logger.info('');
 
       final choice = _logger.chooseOne(
         'Where should I install AI skill files?',
@@ -77,10 +72,9 @@ class InitCommand extends Command<void> {
         ],
         display: (choice) {
           if (choice == 'project') {
-            final target = gitRoot ?? projectPath;
-            return 'Project scope: $target (skills available in this project only)';
+            return 'This project only';
           }
-          return 'User scope: $userHome (skills available in ALL your projects)';
+          return 'All my projects (recommended)';
         },
       );
 
