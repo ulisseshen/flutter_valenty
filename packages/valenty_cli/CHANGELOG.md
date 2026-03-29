@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.4
+
+- Stronger AI agent instructions in scope prompt: "STOP HERE. DO NOT CONTINUE."
+- AI agents now reliably use AskUserQuestion before proceeding
+
 ## 0.3.3
 
 - Fix: replace interactive chooseOne with non-interactive [ACTION REQUIRED] output

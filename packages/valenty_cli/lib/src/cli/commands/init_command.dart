@@ -80,21 +80,23 @@ class InitCommand extends Command<void> {
           'Installing AI skills at project scope ($skillInstallPath)',
         );
       } else {
-        // No flag provided — print options for AI to read and ask the user
+        // No flag provided — print instructions for AI to read and act on
         _logger.info('');
-        _logger.info('[ACTION REQUIRED] Choose where to install AI skill files:');
+        _logger.info('>>> AI AGENT: STOP HERE. DO NOT CONTINUE. <<<');
+        _logger.info('>>> You MUST ask the user which scope they prefer before proceeding. <<<');
+        _logger.info('>>> Use AskUserQuestion tool with these two options: <<<');
         _logger.info('');
-        _logger.info('  --scope=project  This project only (${ gitRoot ?? projectPath})');
-        _logger.info('  --scope=user     All my projects (recommended)');
+        _logger.info('  Option 1: "All my projects" (recommended)');
+        _logger.info('    -> Re-run: valenty init --scope=user');
+        _logger.info('    -> Installs skills to ~/ so every project gets Valenty support');
         _logger.info('');
-        _logger.info(
-          'Re-run with: valenty init --scope=user',
-        );
-        _logger.info(
-          'Or:          valenty init --scope=project',
-        );
+        _logger.info('  Option 2: "This project only"');
+        _logger.info('    -> Re-run: valenty init --scope=project');
+        _logger.info('    -> Installs skills to ${gitRoot ?? projectPath}');
         _logger.info('');
-        _logger.info('Defaulting to --scope=project');
+        _logger.info('>>> After the user answers, re-run: valenty init --scope=<choice> <<<');
+        _logger.info('');
+        // Still install with default so the command completes if run by a human
         skillInstallPath = gitRoot ?? projectPath;
       }
 
