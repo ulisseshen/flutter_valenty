@@ -1,50 +1,158 @@
 /// Template content for the Claude Code skill file.
 ///
-/// This gets written to `.claude/skills/valenty-test-writer/SKILL.md`
+/// This gets written to `.claude/skills/valenty-test/SKILL.md`
 /// in the user's project when they run `valenty init` or `valenty generate skills`.
 const valentySkillTemplate = r'''
 ---
-name: valenty-test-writer
+name: valenty-test
 description: >
-  Generate UI-first component tests using valentyTest pattern (primary) or
-  typed fluent DSL builders for logic-only tests (secondary) using Valenty.
+  Unified test skill: generates acceptance tests (valentyTest), unit tests,
+  fixtures, finders/matchers, and reviews test quality. One entry point for
+  all testing needs. Uses AskUserQuestion to guide users step by step.
 trigger: >
-  Use when user says "scaffold feature", "scaffold builders", "write test",
-  "generate test", "acceptance test", "QA scenario", "test for feature",
-  "write scenario", "valentyTest", "component test", or provides a
+  Use when user says "write test", "generate test", "acceptance test",
+  "unit test", "scaffold feature", "test for feature", "write scenario",
+  "valentyTest", "component test", "review tests", "check test quality",
+  "create fixture", "write unit tests", "valenty test", or provides a
   plain-English Given/When/Then scenario.
 ---
 
-# Valenty Test Writer & Builder Scaffolder
+# Valenty Test — Unified Testing Skill
 
-You generate **UI-first component tests** using the `valentyTest` pattern (primary)
-and can scaffold **typed fluent DSL builders** for logic-only tests (secondary).
-
-**Always default to valentyTest (Part A) for Flutter apps.**
-Only use typed builders (Part B) for pure Dart packages or when the user explicitly
-requests logic-only tests.
+One entry point for all testing: acceptance tests, unit tests, fixtures,
+finders, matchers, and quality review. Uses AskUserQuestion to guide users.
 
 ---
 
-## IMPORTANT: Always prefer valentyTest (UI-first)
+## Step 0: Ask the user what they need (MANDATORY)
 
-When asked to write tests, DEFAULT to valentyTest with full app setup.
+Before writing ANY code, use **AskUserQuestion** to understand the request:
 
-If the user explicitly asks for logic-only tests (no UI), WARN them:
+```
+AskUserQuestion:
+  question: "What would you like to do?"
+  options:
+    - "Write tests for a feature" (acceptance + failure scenarios)
+    - "Write unit tests for logic" (pure functions, calculations)
+    - "Review existing tests" (quality, fragility, naming)
+    - "Generate tests for all features" (full onboarding)
+```
 
-"Testing without the UI misses an entire class of bugs:
-- Widget rendering errors (wrong data displayed to user)
-- Navigation flow bugs (wrong screen after action)
-- State management issues (UI not updating after changes)
-- Form validation not triggering
-- Layout/overflow problems
+Then based on the answer, follow the appropriate section below.
 
-These are the bugs that reach production most often.
-
-Recommended: use valentyTest with full app setup.
-If you still want logic-only tests, I'll use the typed builder approach."
+If the user already specified what they want (e.g., "write tests for login"),
+skip this question and route directly.
 
 ---
+
+## MANDATORY: Test Naming Rules (apply to ALL test types)
+
+Every test name MUST describe **user-observable behavior**, not implementation.
+
+### Good Names (Behavioral)
+- "shows error message when network request fails"
+- "displays total after adding expense"
+- "rejects login with invalid email format"
+- "preserves data after serialization round-trip"
+
+### Bad Names (Implementation-Leaking) — REJECT THESE
+- "should call repository.save()" (leaks method name)
+- "should return UserDto" (leaks type name)
+- "test verifyPin" (starts with 'test')
+- "works correctly" (too vague)
+
+### Naming Formula
+```
+<what happens> + [when <condition>]
+```
+
+Before generating test code, **list the test names first** and present them
+to the user with AskUserQuestion:
+
+```
+AskUserQuestion:
+  question: "Here are the test scenarios I'll generate. Confirm or adjust:"
+  options:
+    - "Looks good, generate them"
+    - "I want to adjust some names"
+    - "Add more scenarios"
+```
+
+---
+
+## MANDATORY: Fixture Rules (apply to ALL test types)
+
+**NEVER inline test data.** Always use fixture classes.
+
+- `abstract final class` — cannot be instantiated
+- `valid` fixture with ALL fields populated
+- `minimal` fixture with only required fields
+- Deterministic: no `DateTime.now()`, no `Random()`
+- Cross-reference related fixtures: `instructorId: InstructorFixtures.valid.id`
+- Place in `test/mocks/fixtures/<entity>_fixtures.dart` (or project convention)
+
+```dart
+abstract final class ExpenseFixtures {
+  static final valid = Expense(
+    id: 'expense-001',
+    description: 'Coffee',
+    amount: 4.50,
+    category: 'Food',
+    date: DateTime(2025, 1, 15),
+  );
+
+  static final minimal = Expense(id: 'expense-min');
+
+  static final validMap = <String, dynamic>{
+    'id': 'expense-001',
+    'description': 'Coffee',
+    'amount': 4.50,
+    'category': 'Food',
+    'date': '2025-01-15T00:00:00.000',
+  };
+}
+```
+
+---
+
+## MANDATORY: Finder & Matcher Rules (apply to valentyTest)
+
+When creating UiDrivers, build **reusable finders** instead of repeating
+`find.byKey` / `find.text` everywhere:
+
+```dart
+class ExpenseUiDriver extends UiDriver {
+  // Reusable finders
+  Finder expenseCard(String description) =>
+      find.ancestor(of: find.text(description), matching: find.byType(ListTile));
+
+  Finder submitButton() => find.byKey(const Key('submitButton'));
+
+  // Reusable verification with clear error messages
+  void verifyText(String text) {
+    expect(find.text(text), findsOneWidget,
+      reason: 'Expected to find "$text" on screen');
+  }
+}
+```
+
+For matchers, always implement `describeMismatch` for clear error messages.
+
+---
+
+## Route A: Write tests for a feature (acceptance tests)
+
+### What to generate
+
+For each feature, generate **all of these** — not just happy path:
+
+1. **4 infrastructure files** (test helper, BackendStub, SystemDsl, UiDriver)
+2. **Happy-path scenarios** — main user flows work
+3. **Failure scenarios** — network errors, validation errors, permission denied
+4. **Edge cases** — empty state, boundary values, special characters
+5. **Parameterized tests** — input variations using `parameterizedTest`
+
+### Architecture (valentyTest)
 
 ## Part A: valentyTest (Component Tests with UI) — PRIMARY
 
@@ -837,27 +945,147 @@ OrderScenario('bad')...then.order().hasWarpDrive(true)  // ERROR: no 'hasWarpDri
 
 Invalid tests do not compile. That is the key advantage over textual Gherkin.
 
-## Onboarding (when user runs `valenty init` or asks to set up Valenty)
+## Route B: Write unit tests for logic
 
-Before running any setup commands:
+Use when testing **pure functions, calculations, transformations, business rules**
+that don't need UI.
 
-1. **Scan the project first** -- check pubspec.yaml, look for `.cursor/`, `.claude/`,
-   `.opencode/`, `AGENTS.md` directories. Find domain models in `lib/`.
+### What to test
+- Pure calculations (tax, discounts, totals, formatting)
+- Data transformations (model mapping, serialization, parsing)
+- Business rules (eligibility, validation, state machines)
+- Edge cases in algorithms (sorting, filtering, pagination)
 
-2. **Detect project type** -- Flutter (has `flutter:` in pubspec) vs pure Dart.
-   - Flutter -> recommend valentyTest (Part A)
-   - Pure Dart -> recommend typed builders (Part B)
+### Always use parameterizedTest for variations
 
-3. **Present findings** -- show the user what AI tools you detected, what domain models
-   exist, and what project type it is.
+```dart
+import 'package:test/test.dart';
+import 'package:valenty_test/valenty_test.dart';
 
-4. **Ask the user** (one question at a time):
-   - Which AI clients to generate skill files for (detected vs all)
-   - Which features to scaffold tests for (based on screens/models found)
-   - Confirm installation scope (project root vs specific package in monorepo)
+void main() {
+  parameterizedTest(
+    'calculates discount correctly',
+    [
+      [100.0, 0.10, 90.0],   // 10% off
+      [100.0, 0.25, 75.0],   // 25% off
+      [50.0, 0.50, 25.0],    // 50% off
+      [200.0, 0.0, 200.0],   // no discount
+      [200.0, 1.0, 0.0],     // 100% off
+    ],
+    (List<dynamic> params) {
+      final price = params[0] as double;
+      final rate = params[1] as double;
+      final expected = params[2] as double;
+      expect(applyDiscount(price, rate), equals(expected));
+    },
+  );
+}
+```
 
-5. **Execute** -- run `valenty init`, then scaffold per chosen feature,
-   then `valenty generate skills`.
+### Manual fakes only — NO mocktail/mockito
 
-Do NOT silently auto-detect and proceed. Always confirm choices with the user first.
+All test doubles are hand-written:
+
+```dart
+class FakeExpenseRepository implements ExpenseRepository {
+  List<Expense>? expensesToReturn;
+  Exception? exceptionToThrow;
+  int fetchCallCount = 0;
+
+  @override
+  Future<List<Expense>> fetchAll() async {
+    fetchCallCount++;
+    if (exceptionToThrow != null) throw exceptionToThrow!;
+    return expensesToReturn!;
+  }
+}
+```
+
+### Always create fixtures — never inline test data
+
+See MANDATORY: Fixture Rules above.
+
+---
+
+## Route C: Review existing tests
+
+Run quality checks on existing tests. Do ALL of these:
+
+### 1. Behavioral naming check
+Scan all `_test.dart` files. Flag any test name that:
+- Mentions method names ("should call save()")
+- Mentions class names ("should return UserDto")
+- Is vague ("works correctly", "test verifyPin")
+- Starts with "test" or "should call"
+
+### 2. Fragile test hunt
+Look for these patterns in test files:
+
+**CRITICAL (will break CI):**
+- `DateTime.now()` in tests
+- `Future.delayed()` / `sleep()`
+- `Random()` without seed
+- Shared mutable state between tests
+- Missing `tearDown` for setup state
+- Network calls without mocks
+
+**WARNING (likely to break):**
+- `pump()` without `pumpAndSettle()`
+- Magic numbers in assertions
+- `setUpAll` with mutable state
+- Assertions on widget tree structure
+
+**SMELL (poor practice):**
+- Test file > 500 lines
+- Inline test data (should be fixtures)
+- `skip: true` annotations
+- Commented-out test code
+- No `setUp` / `tearDown`
+
+### 3. Coupling check
+For each test, ask: would this break if we:
+- Changed an internal method signature?
+- Moved a method between classes?
+- Merged or split internal classes?
+
+If YES → test is coupled to implementation, not behavior.
+
+### 4. Report format
+
+```
+## Test Quality Report
+
+**Scanned**: X files | Y tests
+**Verdict**: CLEAN / PROBATION / CONDEMNED
+
+### Naming Issues (X found)
+- `file_test.dart` — "should call repository.save()" → "saves expense to storage"
+
+### Fragility (X critical, Y warning)
+- `file_test.dart:42` — DateTime.now() → Use fixture date
+
+### Coupling (X tests)
+- `file_test.dart` — mocks internal validator → test via public API
+
+### Fixes Applied
+[list of automated fixes made]
+```
+
+---
+
+## Route D: Generate tests for all features (full onboarding)
+
+See the `valenty-onboarding` skill for the full onboarding flow.
+
+---
+
+## Final Step: Always verify
+
+After generating ANY tests, always run:
+
+```bash
+flutter test test/valenty/
+```
+
+Fix failures immediately. Never leave broken tests.
 ''';

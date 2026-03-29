@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.5.0
+
+- Unified skill: rename valenty-test-writer to valenty-test
+- AskUserQuestion routing: asks user what they need before generating
+- Behavioral test naming enforced at generation time (not as review step)
+- Fixture rules built-in: no inline test data, always use fixture classes
+- Finder/matcher rules built-in: reusable finders in UiDrivers
+- Route A: acceptance tests with happy path + failure + edge cases + parameterized
+- Route B: unit tests with parameterizedTest, manual fakes, fixtures
+- Route C: test quality review (naming, fragility, coupling)
+- Test names presented to user via AskUserQuestion before generating code
+
 ## 0.4.1
 
 - Onboarding skill now auto-generates failure scenarios, parameterized tests, and unit tests

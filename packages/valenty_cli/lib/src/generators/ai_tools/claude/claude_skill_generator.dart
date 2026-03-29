@@ -17,7 +17,7 @@ class ClaudeSkillGenerator {
   /// Generate the Valenty skill for Claude Code.
   ///
   /// Creates:
-  /// - `.claude/skills/valenty-test-writer/SKILL.md`
+  /// - `.claude/skills/valenty-test/SKILL.md`
   ///
   /// If [snapshot] is provided, appends a dynamic "Current Project State"
   /// section with discovered features, builders, and domain models.
@@ -30,7 +30,7 @@ class ClaudeSkillGenerator {
     bool isFlutter = false,
   }) async {
     final skillDir = Directory(
-      p.join(projectPath, '.claude', 'skills', 'valenty-test-writer'),
+      p.join(projectPath, '.claude', 'skills', 'valenty-test'),
     );
 
     if (!skillDir.existsSync()) {
@@ -47,7 +47,7 @@ class ClaudeSkillGenerator {
 
     _logger.info(
       '${lightGreen.wrap('✓')} Generated Claude skill: '
-      '.claude/skills/valenty-test-writer/SKILL.md',
+      '.claude/skills/valenty-test/SKILL.md',
     );
 
     // Generate first-tests skill (post-init guide)
