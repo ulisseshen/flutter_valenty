@@ -1135,13 +1135,33 @@ See the `valenty-onboarding` skill for the full onboarding flow.
 
 ---
 
-## Final Step: Always verify
+## Final Step: Verify and offer to go deeper
 
-After generating ANY tests, always run:
+### 1. Run tests
 
 ```bash
 flutter test test/valenty/
 ```
 
 Fix failures immediately. Never leave broken tests.
+
+### 2. Ask about gaps and edge cases (MANDATORY)
+
+After all tests pass, use **AskUserQuestion**:
+
+```
+AskUserQuestion:
+  question: "Tests are passing. Want to go deeper?"
+  multiSelect: true
+  options:
+    - "Add failure scenarios" (network errors, validation, permission denied)
+    - "Add edge cases" (empty inputs, boundary values, special characters)
+    - "Add parameterized variations" (multiple inputs for same logic)
+    - "Review test quality" (naming, fragility, coupling check)
+```
+
+If the user selects any option, generate the additional tests and run again.
+Repeat this cycle until the user is satisfied.
+
+This ensures progressive coverage — start with essentials, deepen on demand.
 ''';
