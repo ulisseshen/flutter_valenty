@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.1
+
+- Centralized fixture system: all routes (A/B/C/D) must search before creating, reuse existing fixtures, and never inline test data
+
 ## 0.5.0
 
 - Unified skill: rename valenty-test-writer to valenty-test

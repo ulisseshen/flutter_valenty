@@ -80,16 +80,33 @@ AskUserQuestion:
 
 ---
 
-## MANDATORY: Fixture Rules (apply to ALL test types)
+## MANDATORY: Fixture System (apply to ALL routes — A, B, C, D)
 
-**NEVER inline test data.** Always use fixture classes.
+**Every route MUST use this fixture system. No exceptions.**
 
+Before creating ANY test data, follow this protocol:
+
+### 1. SEARCH first — never duplicate
+
+```
+Glob: test/mocks/fixtures/**/*_fixtures.dart
+Grep: "class.*Fixtures" in test/
+```
+
+If a fixture for the entity already exists → **reuse it**. Import it.
+If it needs new variations → **add to the existing file** with `copyWith`.
+
+### 2. CREATE only if not found
+
+Place in `test/mocks/fixtures/<entity>_fixtures.dart` (or match project convention).
+
+Rules:
 - `abstract final class` — cannot be instantiated
 - `valid` fixture with ALL fields populated
 - `minimal` fixture with only required fields
 - Deterministic: no `DateTime.now()`, no `Random()`
 - Cross-reference related fixtures: `instructorId: InstructorFixtures.valid.id`
-- Place in `test/mocks/fixtures/<entity>_fixtures.dart` (or project convention)
+- Raw maps for Firestore/DTO testing
 
 ```dart
 abstract final class ExpenseFixtures {
@@ -103,6 +120,8 @@ abstract final class ExpenseFixtures {
 
   static final minimal = Expense(id: 'expense-min');
 
+  static final list = [valid, minimal];
+
   static final validMap = <String, dynamic>{
     'id': 'expense-001',
     'description': 'Coffee',
@@ -110,7 +129,44 @@ abstract final class ExpenseFixtures {
     'category': 'Food',
     'date': '2025-01-15T00:00:00.000',
   };
+
+  /// Factory for custom variations
+  static Expense withAmount(double amount) => valid.copyWith(amount: amount);
 }
+```
+
+### 3. USE in all test types
+
+**In valentyTest (Route A):**
+```dart
+setup: (backend) {
+  backend.stubExpenses(ExpenseFixtures.list);  // NOT inline data
+},
+```
+
+**In unit tests (Route B):**
+```dart
+test('calculates total from expenses', () {
+  final total = calculateTotal(ExpenseFixtures.list);  // NOT inline data
+  expect(total, equals(4.50));
+});
+```
+
+**In parameterizedTest:**
+```dart
+parameterizedTest('formats currency', [
+  [ExpenseFixtures.valid.amount, r'$4.50'],
+  [0.0, r'$0.00'],
+  [1000.0, r'$1,000.00'],
+], (params) { ... });
+```
+
+### 4. REVIEW during Route C
+
+When reviewing tests, flag any inline test data as a violation:
+```
+SMELL: test/feature_test.dart:15 — Inline Expense(...) instead of ExpenseFixtures.valid
+FIX: Use ExpenseFixtures.valid or create a fixture variation
 ```
 
 ---
