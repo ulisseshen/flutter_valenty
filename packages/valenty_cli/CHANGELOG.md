@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.3
+
+- Fix: replace interactive chooseOne with non-interactive [ACTION REQUIRED] output
+- AI reads the output and uses AskUserQuestion to ask the user
+- Add --scope=project|user flag to valenty init
+- Default to --scope=project when no flag provided
+
 ## 0.3.2
 
 - Simplify skill scope prompt: "This project only" vs "All my projects (recommended)"

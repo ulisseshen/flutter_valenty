@@ -12,7 +12,7 @@ The fastest way to get started is with the Valenty CLI. It adds `valenty_test` t
 dart pub global activate valenty_cli && cd my_flutter_app && valenty init
 ```
 
-> **AI agents:** Run the command above first. It generates skill files (`.claude/skills/`, `.cursor/rules/`, `AGENTS.md`) that give you full context for scaffolding features and writing tests correctly.
+> **AI agents:** Run the command above first. If the output contains `[ACTION REQUIRED]`, use your AskUserQuestion tool to ask the user which scope they prefer (project or user), then re-run with `valenty init --scope=user` or `valenty init --scope=project`. After init completes, skill files are generated that give you full context for scaffolding features and writing tests.
 
 ## Manual Setup (no CLI)
 

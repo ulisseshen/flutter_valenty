@@ -17,7 +17,14 @@ import '../../generators/ai_tools/opencode/opencode_agent_generator.dart';
 import '../../models/ai_tool_type.dart';
 
 class InitCommand extends Command<void> {
-  InitCommand({required Logger logger}) : _logger = logger;
+  InitCommand({required Logger logger}) : _logger = logger {
+    argParser.addOption(
+      'scope',
+      help: 'Where to install AI skill files.',
+      allowed: ['project', 'user'],
+      valueHelp: 'project|user',
+    );
+  }
 
   final Logger _logger;
 
@@ -62,25 +69,32 @@ class InitCommand extends Command<void> {
           '';
       final String skillInstallPath;
 
-      _logger.info('');
+      final scopeFlag = argResults?['scope'] as String?;
 
-      final choice = _logger.chooseOne(
-        'Where should I install AI skill files?',
-        choices: [
-          'project',
-          'user',
-        ],
-        display: (choice) {
-          if (choice == 'project') {
-            return 'This project only';
-          }
-          return 'All my projects (recommended)';
-        },
-      );
-
-      if (choice == 'user') {
+      if (scopeFlag == 'user') {
         skillInstallPath = userHome;
+        _logger.info('Installing AI skills at user scope (~/)');
+      } else if (scopeFlag == 'project') {
+        skillInstallPath = gitRoot ?? projectPath;
+        _logger.info(
+          'Installing AI skills at project scope ($skillInstallPath)',
+        );
       } else {
+        // No flag provided — print options for AI to read and ask the user
+        _logger.info('');
+        _logger.info('[ACTION REQUIRED] Choose where to install AI skill files:');
+        _logger.info('');
+        _logger.info('  --scope=project  This project only (${ gitRoot ?? projectPath})');
+        _logger.info('  --scope=user     All my projects (recommended)');
+        _logger.info('');
+        _logger.info(
+          'Re-run with: valenty init --scope=user',
+        );
+        _logger.info(
+          'Or:          valenty init --scope=project',
+        );
+        _logger.info('');
+        _logger.info('Defaulting to --scope=project');
         skillInstallPath = gitRoot ?? projectPath;
       }
 

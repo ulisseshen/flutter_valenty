@@ -1,6 +1,6 @@
 name: valenty_test
 description: Compile-time safe component testing DSL for Flutter apps with phantom types and typed fluent builders.
-version: 0.2.1
+version: 0.2.2
 repository: https://github.com/ulisseshen/flutter_valenty
 homepage: https://github.com/ulisseshen/flutter_valenty
 topics:
