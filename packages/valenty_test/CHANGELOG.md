@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1
+
+- Fix Flutter SDK compatibility: relax test constraint back to ^1.25.0 (was ^1.31.0 which required test_api 0.7.11, incompatible with Flutter's pinned test_api 0.7.8)
+
 ## 0.2.0
 
 - Rewrite README for zero-friction onboarding: complete working examples, architecture guide, troubleshooting, and AI agent instructions

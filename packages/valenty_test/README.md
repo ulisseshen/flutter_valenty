@@ -18,12 +18,12 @@ dart pub global activate valenty_cli && cd my_flutter_app && valenty init
 
 ```yaml
 dev_dependencies:
-  valenty_test: ^0.1.3
+  valenty_test: ^0.2.1
 ```
 
-### Dependency conflict with analyzer?
+### Dependency conflict?
 
-If `dart pub get` fails with an `analyzer` version conflict (common with `riverpod_generator`, `freezed`, `build_runner`), make sure you are using `valenty_test: ^0.1.3`. This version requires `test ^1.31.0` which supports `analyzer <13.0.0`.
+`valenty_test` uses a wide `test: ^1.25.0` constraint so the pub resolver picks the best version for your project. If you still see conflicts, run `flutter pub outdated` to find which package needs updating.
 
 ---
 
