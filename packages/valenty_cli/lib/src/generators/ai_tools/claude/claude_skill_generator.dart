@@ -52,7 +52,7 @@ class ClaudeSkillGenerator {
 
     // Generate first-tests skill (post-init guide)
     final firstTestsDir = Directory(
-      p.join(projectPath, '.claude', 'skills', 'valenty-first-tests'),
+      p.join(projectPath, '.claude', 'skills', 'valenty-onboarding'),
     );
 
     if (!firstTestsDir.existsSync()) {
@@ -64,7 +64,7 @@ class ClaudeSkillGenerator {
 
     _logger.info(
       '${lightGreen.wrap('✓')} Generated Claude skill: '
-      '.claude/skills/valenty-first-tests/SKILL.md',
+      '.claude/skills/valenty-onboarding/SKILL.md',
     );
   }
 

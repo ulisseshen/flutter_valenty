@@ -1,25 +1,25 @@
-/// Template content for the Claude Code post-init skill file.
+/// Template content for the Claude Code onboarding skill file.
 ///
-/// This gets written to `.claude/skills/valenty-first-tests/SKILL.md`
-/// in the user's project when they run `valenty init`.
+/// This gets written to `.claude/skills/valenty-onboarding/SKILL.md`
+/// when the user runs `valenty init`.
 ///
-/// This skill teaches AI how to scan the project and generate the first
-/// valentyTest scenarios after Valenty is installed.
+/// This skill guides the AI through: scanning the project, generating the
+/// first valentyTest scenarios, and offering to upgrade skill scope.
 const valentyInitSkillTemplate = r'''
 ---
-name: valenty-first-tests
+name: valenty-onboarding
 description: >
-  Scan the project, identify features and services, and generate the first
-  valentyTest scenarios (test helper, SystemDsl, BackendStubDsl, UiDriver).
+  Onboard a project to Valenty: scan the codebase, generate the first
+  valentyTest scenarios, and offer to upgrade skill scope to user-level.
 trigger: >
   Use when user says "generate first tests", "write first tests",
-  "scaffold first feature", "create acceptance tests", "valenty first tests",
+  "scaffold first feature", "create acceptance tests", "valenty onboarding",
   "what tests should I write", "help me get started with valenty",
-  "scan project for tests", or after valenty init has been run and the user
-  wants to start writing tests.
+  "scan project for tests", "Generate my first valentyTest scenarios",
+  or after valenty init has been run and the user wants to start writing tests.
 ---
 
-# Valenty: Generate First Tests
+# Valenty Onboarding
 
 Valenty is already installed in this project. Your job is to **scan the project,
 identify the most testable feature, and generate the first valentyTest scenario**.
