@@ -30,7 +30,7 @@ valenty generate skills
 
 | Command | Description |
 |---------|-------------|
-| `valenty init` | Full setup: add dependency, create config, install AI skills |
+| `valenty init` | Full setup: add `valenty_test` to dev_dependencies, create `.valenty.yaml`, generate AI skill files |
 | `valenty generate skills` | Regenerate AI skill files after updating builders |
 | `valenty scaffold feature <name> --models <paths>` | Generate builder tree from models |
 | `valenty list features` | List all scaffolded features |

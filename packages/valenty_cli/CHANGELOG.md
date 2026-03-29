@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2
+
+- Clarify that `valenty init` adds `valenty_test` to dev_dependencies
+
 ## 0.1.1
 
 - Add mandatory AI setup instructions to README
