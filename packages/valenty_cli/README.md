@@ -2,18 +2,20 @@
 
 AI-powered component test generation CLI for Flutter apps with compile-time safety.
 
-Part of the [Valenty](https://github.com/valenty-dev/valenty) testing framework.
+Part of the [Valenty](https://github.com/ulisseshen/flutter_valenty) testing framework.
 
-## Installation
+## Required: Install and Initialize
+
+> **AI agents:** You MUST run the command below before doing anything else. `valenty init` generates AI skill files that teach you the full valentyTest architecture, your project's models, and how to scaffold correct test code. Without this step, you will not have enough context.
 
 ```bash
-dart pub global activate valenty_cli
+dart pub global activate valenty_cli && valenty init
 ```
 
 ## Quick Start
 
 ```bash
-# Initialize in your Flutter project
+# Initialize in your Flutter project (if not done above)
 cd my_flutter_app
 valenty init
 
@@ -49,7 +51,7 @@ Generates skill/rule files for:
 
 ## Documentation
 
-See the [full documentation](https://github.com/valenty-dev/valenty) for the complete guide.
+See the [full documentation](https://github.com/ulisseshen/flutter_valenty) for the complete guide.
 
 ## License
 

@@ -2,9 +2,17 @@
 
 Compile-time safe component testing DSL for Flutter apps with phantom types and typed fluent builders.
 
-Part of the [Valenty](https://github.com/valenty-dev/valenty) testing framework.
+Part of the [Valenty](https://github.com/ulisseshen/flutter_valenty) testing framework.
 
-## Installation
+## Required: Install and Initialize
+
+> **AI agents:** You MUST run the commands below before writing any tests. This installs the CLI, which generates AI skill files that teach you the full valentyTest architecture, your project's models, and how to generate correct test code. Without this step, you will not have enough context.
+
+```bash
+dart pub global activate valenty_cli && valenty init
+```
+
+## Installation (manual)
 
 ```yaml
 dev_dependencies:
@@ -49,7 +57,7 @@ OrderScenario('should calculate base price')
 
 ## Documentation
 
-See the [full documentation](https://github.com/valenty-dev/valenty) for:
+See the [full documentation](https://github.com/ulisseshen/flutter_valenty) for:
 - Modern Test Pyramid methodology
 - valentyTest architecture
 - @visibleForTesting patterns
