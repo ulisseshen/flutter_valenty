@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.1
+
+- Fix skill install scope: project (git root) vs user (~/) instead of git root vs project subdir
+- User scope installs to ~/.claude/skills/ — skills available across ALL projects
+
 ## 0.3.0
 
 - Monorepo support: detect git root and ask where to install AI skill files

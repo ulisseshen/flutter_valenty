@@ -55,48 +55,39 @@ class InitCommand extends Command<void> {
         'Detected: ${projectInfo.type.name} (${projectInfo.name})',
       );
 
-      // ── Step 3: Detect git root and skill install path ──────────────
+      // ── Step 3: Determine skill install scope ─────────────────────
       final gitRoot = _findGitRoot(projectPath);
+      final userHome = Platform.environment['HOME'] ??
+          Platform.environment['USERPROFILE'] ??
+          '';
       final String skillInstallPath;
 
-      if (gitRoot != null && gitRoot != projectPath) {
-        // We're in a subdirectory of a git repo (monorepo)
-        final relativePath = p.relative(projectPath, from: gitRoot);
-        _logger.info('');
-        _logger.info(
-          'Monorepo detected: you are in $relativePath/',
-        );
-        _logger.info(
-          'Git root is at: $gitRoot',
-        );
-        _logger.info('');
-        _logger.info(
-          'AI tools (Claude Code, Cursor, Codex) look for skill files '
-          'at the git root,',
-        );
-        _logger.info(
-          'not inside subdirectories.',
-        );
-        _logger.info('');
+      _logger.info('');
+      _logger.info(
+        'AI skill files teach your AI assistant (Claude, Cursor, etc.) '
+        'how to use Valenty.',
+      );
+      _logger.info('');
 
-        final choice = _logger.chooseOne(
-          'Where should I install AI skill files?',
-          choices: [
-            'git-root',
-            'project-dir',
-          ],
-          display: (choice) {
-            if (choice == 'git-root') {
-              return 'Git root: $gitRoot (recommended — AI tools find them here)';
-            }
-            return 'Project dir: $projectPath (manual setup needed)';
-          },
-        );
+      final choice = _logger.chooseOne(
+        'Where should I install AI skill files?',
+        choices: [
+          'project',
+          'user',
+        ],
+        display: (choice) {
+          if (choice == 'project') {
+            final target = gitRoot ?? projectPath;
+            return 'Project scope: $target (skills available in this project only)';
+          }
+          return 'User scope: $userHome (skills available in ALL your projects)';
+        },
+      );
 
-        skillInstallPath =
-            choice == 'git-root' ? gitRoot : projectPath;
+      if (choice == 'user') {
+        skillInstallPath = userHome;
       } else {
-        skillInstallPath = projectPath;
+        skillInstallPath = gitRoot ?? projectPath;
       }
 
       // ── Step 4: Detect AI tools ─────────────────────────────────────
