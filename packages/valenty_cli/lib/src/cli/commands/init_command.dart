@@ -20,8 +20,11 @@ class InitCommand extends Command<void> {
   InitCommand({required Logger logger}) : _logger = logger {
     argParser.addOption(
       'scope',
-      help: 'Where to install AI skill files.',
+      help: 'Where to install AI skill files.\n'
+          '  project — <git-root>/.claude/skills/ (this project only, default)\n'
+          '  user    — ~/.claude/skills/ (available in ALL projects)',
       allowed: ['project', 'user'],
+      defaultsTo: 'project',
       valueHelp: 'project|user',
     );
   }
@@ -33,7 +36,8 @@ class InitCommand extends Command<void> {
 
   @override
   String get description =>
-      'Initialize Valenty: add DSL dependency, create config, install AI skills.';
+      'Initialize Valenty: add valenty_test dependency, create config, '
+      'install AI skills.';
 
   @override
   Future<void> run() async {
@@ -62,43 +66,23 @@ class InitCommand extends Command<void> {
         'Detected: ${projectInfo.type.name} (${projectInfo.name})',
       );
 
-      // ── Step 3: Determine skill install scope ─────────────────────
-      final gitRoot = _findGitRoot(projectPath);
-      final userHome = Platform.environment['HOME'] ??
-          Platform.environment['USERPROFILE'] ??
-          '';
+      // ── Step 3: Determine skill install path ────────────────────────
+      final scopeFlag = argResults?['scope'] as String? ?? 'project';
       final String skillInstallPath;
 
-      final scopeFlag = argResults?['scope'] as String?;
-
       if (scopeFlag == 'user') {
+        final userHome = Platform.environment['HOME'] ??
+            Platform.environment['USERPROFILE'] ??
+            '';
         skillInstallPath = userHome;
-        _logger.info('Installing AI skills at user scope (~/)');
-      } else if (scopeFlag == 'project') {
-        skillInstallPath = gitRoot ?? projectPath;
-        _logger.info(
-          'Installing AI skills at project scope ($skillInstallPath)',
-        );
       } else {
-        // No flag provided — print instructions for AI to read and act on
-        _logger.info('');
-        _logger.info('>>> AI AGENT: STOP HERE. DO NOT CONTINUE. <<<');
-        _logger.info('>>> You MUST ask the user which scope they prefer before proceeding. <<<');
-        _logger.info('>>> Use AskUserQuestion tool with these two options: <<<');
-        _logger.info('');
-        _logger.info('  Option 1: "All my projects" (recommended)');
-        _logger.info('    -> Re-run: valenty init --scope=user');
-        _logger.info('    -> Installs skills to ~/ so every project gets Valenty support');
-        _logger.info('');
-        _logger.info('  Option 2: "This project only"');
-        _logger.info('    -> Re-run: valenty init --scope=project');
-        _logger.info('    -> Installs skills to ${gitRoot ?? projectPath}');
-        _logger.info('');
-        _logger.info('>>> After the user answers, re-run: valenty init --scope=<choice> <<<');
-        _logger.info('');
-        // Still install with default so the command completes if run by a human
+        final gitRoot = _findGitRoot(projectPath);
         skillInstallPath = gitRoot ?? projectPath;
       }
+
+      _logger.info(
+        'AI skills scope: $scopeFlag ($skillInstallPath)',
+      );
 
       // ── Step 4: Detect AI tools ─────────────────────────────────────
       final aiDetecting = _logger.progress('Detecting AI tools');
@@ -149,7 +133,7 @@ class InitCommand extends Command<void> {
       );
       skillProgress.complete('AI skill files generated');
 
-      // ── Step 7: Run pub get ─────────────────────────────────────────
+      // ── Step 8: Run pub get ─────────────────────────────────────────
       final pubGetProgress = _logger.progress('Running pub get');
       final isFlutter = projectInfo.hasFlutter;
       final pubGetResult = await Process.run(
@@ -169,32 +153,18 @@ class InitCommand extends Command<void> {
           _logger.err(stderr);
         }
       }
-      // ── Step 9: Success message ─────────────────────────────────
+
+      // ── Step 9: Success message ─────────────────────────────────────
       _logger.info('');
       _logger.success('Valenty initialized successfully!');
       _logger.info('');
-      _logger.info('What was installed:');
-      _logger.info('  - valenty_test added to dev_dependencies');
-      _logger.info('  - .valenty.yaml configuration created');
-      _logger.info('  - AI skill files generated at: $skillInstallPath');
-      _logger.info('');
-      _logger.info('Next step — tell your AI:');
+      _logger.info('  valenty_test: dev_dependency');
+      _logger.info('  config: .valenty.yaml');
+      _logger.info('  skills: $skillInstallPath');
       _logger.info('');
       _logger.info(
-        '  "Generate my first valentyTest scenarios"',
+        'Next: tell your AI "Generate my first valentyTest scenarios"',
       );
-      _logger.info('');
-      _logger.info(
-        '  The AI will scan your project, pick the best feature to test,',
-      );
-      _logger.info(
-        '  and generate: test helper, SystemDsl, BackendStubDsl, UiDriver,',
-      );
-      _logger.info(
-        '  and 3 starter test scenarios.',
-      );
-      _logger.info('');
-      _logger.info('Run "valenty doctor" to verify your setup.');
     } on FileSystemException {
       detecting.fail('Failed to detect project type');
       return;
@@ -202,13 +172,10 @@ class InitCommand extends Command<void> {
   }
 
   /// Add `valenty_test` to `dev_dependencies` in pubspec.yaml.
-  ///
-  /// Returns `true` if added, `false` if already present.
   Future<bool> _addValentyDslDependency(File pubspecFile) async {
     final content = await pubspecFile.readAsString();
     final yaml = loadYaml(content) as YamlMap;
 
-    // Check if already present
     if (yaml['dev_dependencies'] is YamlMap) {
       final devDeps = yaml['dev_dependencies'] as YamlMap;
       if (devDeps.containsKey('valenty_test')) {
@@ -218,11 +185,10 @@ class InitCommand extends Command<void> {
 
     final editor = YamlEditor(content);
 
-    // Ensure dev_dependencies section exists
     if (yaml['dev_dependencies'] == null) {
-      editor.update(['dev_dependencies'], {'valenty_test': '^0.2.1'});
+      editor.update(['dev_dependencies'], {'valenty_test': '^0.2.2'});
     } else {
-      editor.update(['dev_dependencies', 'valenty_test'], '^0.2.1');
+      editor.update(['dev_dependencies', 'valenty_test'], '^0.2.2');
     }
 
     await pubspecFile.writeAsString(editor.toString());
@@ -230,8 +196,6 @@ class InitCommand extends Command<void> {
   }
 
   /// Find the git root by walking up from [startPath].
-  ///
-  /// Returns `null` if no `.git` directory is found.
   String? _findGitRoot(String startPath) {
     var current = startPath;
     while (true) {
@@ -239,7 +203,7 @@ class InitCommand extends Command<void> {
         return current;
       }
       final parent = p.dirname(current);
-      if (parent == current) return null; // reached filesystem root
+      if (parent == current) return null;
       current = parent;
     }
   }
@@ -250,17 +214,14 @@ class InitCommand extends Command<void> {
     String projectPath, {
     bool isFlutter = false,
   }) async {
-    // Always generate Claude skill (most common and comprehensive)
     await ClaudeSkillGenerator(logger: _logger).generate(
       projectPath,
       isFlutter: isFlutter,
     );
 
-    // Generate for each detected tool
     for (final tool in tools) {
       switch (tool) {
         case AiToolType.claude:
-          // Already generated above
           break;
         case AiToolType.cursor:
           await CursorRuleGenerator(logger: _logger).generate(
@@ -268,7 +229,6 @@ class InitCommand extends Command<void> {
             isFlutter: isFlutter,
           );
         case AiToolType.codex:
-          // AGENTS.md covers this
           break;
         case AiToolType.openCode:
           await OpenCodeAgentGenerator(logger: _logger).generate(
@@ -278,7 +238,6 @@ class InitCommand extends Command<void> {
       }
     }
 
-    // Always generate AGENTS.md (portable, works with Codex and OpenCode)
     await CodexAgentGenerator(logger: _logger).generate(
       projectPath,
       isFlutter: isFlutter,

@@ -9,10 +9,10 @@ Part of the [Valenty](https://github.com/ulisseshen/flutter_valenty) testing fra
 The fastest way to get started is with the Valenty CLI. It adds `valenty_test` to your project and generates AI skill files that teach your AI assistant (Claude, Cursor, Codex, etc.) the full valentyTest architecture.
 
 ```bash
-dart pub global activate valenty_cli && cd my_flutter_app && valenty init
+dart pub global activate valenty_cli && valenty init
 ```
 
-> **AI agents:** Run the command above first. If the output contains `[ACTION REQUIRED]`, use your AskUserQuestion tool to ask the user which scope they prefer (project or user), then re-run with `valenty init --scope=user` or `valenty init --scope=project`. After init completes, skill files are generated that give you full context for scaffolding features and writing tests.
+> **AI agents:** Run the command above first. After init, you have full context for scaffolding features and writing tests. Then say "Generate my first valentyTest scenarios" to start.
 
 ## Manual Setup (no CLI)
 

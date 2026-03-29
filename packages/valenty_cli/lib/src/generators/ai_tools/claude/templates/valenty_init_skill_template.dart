@@ -231,6 +231,21 @@ add them to the production service classes.
 
 ---
 
+## Step 6: Offer to upgrade skill scope
+
+After generating the first tests, use **AskUserQuestion** to ask:
+
+> "Valenty skills are currently installed for this project only.
+> Would you like to make them available in ALL your projects?
+> This way any project you open will already know how to use Valenty."
+>
+> Option 1: "Yes, all my projects" → run: `valenty init --scope=user`
+> Option 2: "No, keep it for this project only" → do nothing
+
+This is optional — only ask once after the first successful test generation.
+
+---
+
 ## Rules
 
 - **Always scan the project first** — don't guess, read the actual code

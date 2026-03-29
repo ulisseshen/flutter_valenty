@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.0
+
+- Redesign: CLI is now fully non-interactive (no prompts, no TTY required)
+- Default scope is project; use --scope=user for global install
+- Scope upgrade prompt moved to valenty-first-tests skill (uses AskUserQuestion)
+- Cleaner output: no AI agent instructions in stdout
+
 ## 0.3.4
 
 - Stronger AI agent instructions in scope prompt: "STOP HERE. DO NOT CONTINUE."

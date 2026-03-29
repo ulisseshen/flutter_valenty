@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.3
+
+- Simplify README setup: just `valenty init` (no scope flag needed)
+
 ## 0.2.2
 
 - Update README AI agent instructions: handle [ACTION REQUIRED] scope prompt via AskUserQuestion
