@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2
+
+- Fix dependency conflict with riverpod_generator by requiring test ^1.31.0 (supports analyzer <13.0.0)
+
 ## 0.1.1
 
 - Add mandatory AI setup instructions to README
