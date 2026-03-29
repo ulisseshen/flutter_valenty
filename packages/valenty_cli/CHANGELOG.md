@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.1
+
+- Onboarding skill now auto-generates failure scenarios, parameterized tests, and unit tests
+- Renamed valenty-first-tests back to valenty-onboarding
+
 ## 0.4.0
 
 - Redesign: CLI is now fully non-interactive (no prompts, no TTY required)
