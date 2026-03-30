@@ -180,7 +180,7 @@ Only two packages exist:
 ## Open Questions
 
 1. Should we also publish to Cursor Marketplace?
-2. How to handle updates? (`npx valenty-tester@latest` like GSD?)
+2. How to handle updates? (`npx valenty-tester@latest`)
 
 ## Decided
 

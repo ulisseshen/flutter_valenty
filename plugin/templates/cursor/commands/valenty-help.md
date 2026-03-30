@@ -24,5 +24,5 @@ Built on the [Modern Test Pyramid](https://journal.optivem.com/p/modern-test-pyr
 ## Update
 
 ```bash
-npx valenty-cc@latest
+npx valenty-tester@latest
 ```
