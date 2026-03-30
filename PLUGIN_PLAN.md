@@ -5,7 +5,7 @@
 One `npx` command installs Valenty as a plugin across all AI coding tools.
 
 ```bash
-npx valenty-cc@latest
+npx valenty-tester@latest
 ```
 
 ## Research Summary
@@ -29,7 +29,7 @@ npx valenty-cc@latest
 ### npm Package Structure
 
 ```
-valenty-cc/
+valenty-tester/
 ├── package.json
 ├── bin/
 │   └── install.mjs              # Main installer script
@@ -157,17 +157,17 @@ All platform-specific command files reference the same core logic from `shared/c
 
 ## What Happens to valenty_cli?
 
-**valenty_cli is killed.** The npm package (`valenty-cc`) handles AI tool installation.
+**valenty_cli is killed.** The npm package (`valenty-tester`) handles AI tool installation.
 Project configuration (adding `valenty_test` dep, creating `.valenty.yaml`) moves to
 `/valenty:init` — the AI adds the dep and config directly.
 
 Only two packages exist:
 - **valenty_test** (pub.dev) — the Dart test DSL package
-- **valenty-cc** (npm) — the plugin installer for AI tools
+- **valenty-tester** (npm) — the plugin installer for AI tools
 
 ## Implementation Steps
 
-1. Create npm package scaffold (`valenty-cc/`)
+1. Create npm package scaffold (`valenty-tester/`)
 2. Write Claude Code commands (thin wrappers + workflows)
 3. Write Antigravity workflows (self-contained, <12K chars)
 4. Write Cursor commands + rules + skills
@@ -175,12 +175,12 @@ Only two packages exist:
 6. Write installer script
 7. Test on each platform
 8. Publish to npm
-9. Update READMEs on pub.dev to reference `npx valenty-cc`
+9. Update READMEs on pub.dev to reference `npx valenty-tester`
 
 ## Open Questions
 
 1. Should we also publish to Cursor Marketplace?
-2. How to handle updates? (`npx valenty-cc@latest` like GSD?)
+2. How to handle updates? (`npx valenty-tester@latest` like GSD?)
 
 ## Decided
 

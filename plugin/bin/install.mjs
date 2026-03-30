@@ -131,7 +131,7 @@ if (tools.length === 0) {
   console.log('');
   console.log('Valenty supports: Claude Code, Antigravity, Cursor');
   console.log('Install one of these tools first, then re-run:');
-  console.log(`  ${DIM}npx valenty-cc@latest${RESET}`);
+  console.log(`  ${DIM}npx valenty-tester@latest${RESET}`);
   process.exit(0);
 }
 
