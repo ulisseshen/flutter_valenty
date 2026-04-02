@@ -120,8 +120,10 @@ Present the test names to the user with AskUserQuestion before generating code.
 ## Step 8: Run tests
 
 ```bash
-flutter test test/valenty/
+dart run valenty_test:failed_tests valenty
 ```
+
+This runs all valenty tests and returns ONLY failures — saves context when there are thousands of tests.
 
 Fix any failures.
 

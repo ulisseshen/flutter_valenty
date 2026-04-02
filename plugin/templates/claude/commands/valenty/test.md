@@ -140,8 +140,10 @@ class FakeExpenseRepo implements ExpenseRepository {
 ## Final: Run and offer to go deeper
 
 ```bash
-flutter test test/valenty/
+dart run valenty_test:failed_tests valenty
 ```
+
+This runs all valenty tests and returns ONLY failures — saves context when there are thousands of tests.
 
 Then AskUserQuestion (multiSelect):
 ```
