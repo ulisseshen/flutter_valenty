@@ -83,10 +83,11 @@ valentyTest(
 );
 ```
 
-### UiDriver: use reusable finders
+### UiDriver: use reusable finders AND matchers
 
 ```dart
 class ExpenseUiDriver extends UiDriver {
+  // Reusable finders
   Finder expenseCard(String desc) =>
       find.ancestor(of: find.text(desc), matching: find.byType(ListTile));
 
@@ -95,6 +96,37 @@ class ExpenseUiDriver extends UiDriver {
   }
 }
 ```
+
+Create custom matchers when assertions need clear error messages:
+
+```dart
+/// Matcher: verifies a widget contains specific text
+Matcher hasChildWithText(String expected) => _HasChildWithText(expected);
+
+class _HasChildWithText extends Matcher {
+  final String expected;
+  const _HasChildWithText(this.expected);
+
+  @override
+  bool matches(Object? item, Map matchState) {
+    if (item is! Finder || item.evaluate().isEmpty) return false;
+    return find.descendant(of: item, matching: find.text(expected))
+        .evaluate().isNotEmpty;
+  }
+
+  @override
+  Description describe(Description d) => d.add('has child with text "$expected"');
+
+  @override
+  Description describeMismatch(Object? item, Description d, Map m, bool v) =>
+      d.add('does not contain text "$expected"');
+}
+```
+
+**Rules for matchers:**
+- Always implement `describeMismatch` — "does not match" is useless
+- Create only when used 3+ times
+- Place in `test/helpers/matchers.dart` (or project convention)
 
 ---
 

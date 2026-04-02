@@ -61,7 +61,22 @@ For each test, ask: would it break if we:
 
 If YES → coupled to implementation.
 
-## Step 5: Report
+## Step 5: Check stubs and fakes
+
+Review all test doubles (stubs, fakes) for:
+
+**Over-mocking:** If > 50% of a test is mock/stub setup, it's testing mocks not code.
+**Stale stubs:** Stubs that don't match current service interfaces.
+**Missing restore:** BackendStubDsl without `restore()` in tearDown → state leaks.
+**Duplicate stubs:** Same fake class reimplemented in multiple test files → centralize.
+
+## Step 6: Check matchers
+
+- Are custom matchers implementing `describeMismatch`? If not → useless error messages.
+- Are there repeated complex assertions that should be matchers? (3+ occurrences)
+- Are finders reusable or duplicated across test files?
+
+## Step 7: Report
 
 ```
 ## Valenty Test Quality Report
@@ -80,9 +95,17 @@ If YES → coupled to implementation.
 
 ### Inline Data (X violations)
 - file_test.dart:15 — Expense(...) inline → use ExpenseFixtures.valid
+
+### Stubs/Fakes (X issues)
+- file_test.dart — over-mocked: 15 lines of stub setup for 3 lines of test
+- fake_repo.dart — missing restore(), state leaks between tests
+
+### Matchers (X issues)
+- file_test.dart — repeated assertion (5x) should be a custom matcher
+- custom_matcher.dart — missing describeMismatch
 ```
 
-## Step 6: Ask about auto-fix
+## Step 8: Ask about auto-fix
 
 Use **AskUserQuestion** (multiSelect):
 ```
