@@ -10,7 +10,7 @@ Output the following reference. Do NOT add project-specific analysis or suggesti
 **Valenty** — AI-powered testing for Flutter apps using the Modern Test Pyramid.
 
 - **Component tests** validate what users see and do (`valentyTest`)
-- **Unit tests** cover business rules from the developer's perspective (`typedParameterizedTest`)
+- **Unit tests** cover business rules and edge cases (`typedParameterizedTest`)
 
 ## Commands
 

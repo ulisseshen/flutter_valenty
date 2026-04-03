@@ -17,10 +17,10 @@ Write tests using Valenty's two test types:
 
 - **Component tests** (valentyTest) — validate what users SEE and DO.
   Written in domain language. Test the full app with faked externals.
-- **Unit tests** (typedParameterizedTest) — cover business RULES from the developer's perspective.
-  Written with typed cases. Test logic, validations, formatting, and edge cases.
+- **Unit tests** (typedParameterizedTest) — cover business rules and edge cases.
+  Written with typed cases. Test validations, calculations, formatting, and boundaries.
 
-Component tests catch bugs users hit. Unit tests catch rules developers define.
+Component tests catch bugs users hit. Unit tests catch rules and edge cases developers define.
 </objective>
 
 <process>
@@ -37,7 +37,7 @@ Otherwise, use **AskUserQuestion**:
 question: "What would you like to test?"
 options:
   - A user scenario (component test — what users see and do)
-  - Business rules and edge cases (unit test — rules developers define)
+  - Business rules and edge cases (unit test — rules and boundaries developers define)
   - Both for a feature (component + unit tests)
 ```
 
