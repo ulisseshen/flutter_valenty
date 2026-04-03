@@ -7,21 +7,38 @@ Output the following reference. Do NOT add project-specific analysis or suggesti
 
 # Valenty Command Reference
 
-**Valenty** generates AI-powered component tests for Flutter apps using the Modern Test Pyramid.
+**Valenty** — AI-powered testing for Flutter apps using the Modern Test Pyramid.
+
+- **Component tests** validate what users see and do (`valentyTest`)
+- **Unit tests** cover what developers calculate (`typedParameterizedTest`)
 
 ## Commands
 
 | Command | Purpose |
 |---------|---------|
-| `/valenty:init` | Setup project: add valenty_test, generate first tests |
-| `/valenty:test` | Write tests: acceptance, unit, or parameterized |
-| `/valenty:review` | Review test quality: naming, fragility, coupling |
+| `/valenty:init` | Setup project: add valenty_test, scan features, generate first tests |
+| `/valenty:test` | Write component tests (user scenarios) or unit tests (edge cases) |
+| `/valenty:review` | Review test quality with 4 parallel agents |
 | `/valenty:help` | This reference |
 
 ## Quick Start
 
 ```
 /valenty:init
+```
+
+## Test Types
+
+**Component test** — test what users see:
+```dart
+valentyTest('shows error when payment fails', ...);
+```
+
+**Unit test** — cover edge cases:
+```dart
+typedParameterizedTest('calculates discount', [
+  DiscountCase(price: 100, rate: 0.10, expected: 90),
+], (c) => expect(applyDiscount(c.price, c.rate), equals(c.expected)));
 ```
 
 ## Credits

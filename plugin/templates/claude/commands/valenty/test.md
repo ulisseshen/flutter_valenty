@@ -1,6 +1,6 @@
 ---
 name: valenty:test
-description: Write tests — routes to acceptance test (valentyTest), unit test, or parameterized based on user input
+description: Write tests — component tests for user scenarios (valentyTest) or unit tests for edge cases (typedParameterizedTest)
 argument-hint: "[feature or description]"
 allowed-tools:
   - Read
@@ -13,23 +13,32 @@ allowed-tools:
 ---
 
 <objective>
-Write tests for the current Flutter project using Valenty patterns.
-Routes to the right test type based on user input.
+Write tests using Valenty's two test types:
+
+- **Component tests** (valentyTest) — validate what users SEE and DO.
+  Written in domain language. Test the full app with faked externals.
+- **Unit tests** (typedParameterizedTest) — cover what developers CALCULATE.
+  Written with typed cases. Test pure logic with edge case variations.
+
+Component tests catch bugs users hit. Unit tests catch bugs developers miss.
 </objective>
 
 <process>
 
 ## Step 0: Route
 
-If `$ARGUMENTS` is provided, infer the test type from context.
+If `$ARGUMENTS` is provided, infer the test type from context:
+- Mentions a feature, screen, flow, user action → **component test**
+- Mentions a function, calculation, formatting, validation logic → **unit test**
+
 Otherwise, use **AskUserQuestion**:
 
 ```
 question: "What would you like to test?"
 options:
-  - A feature flow (acceptance test with valentyTest)
-  - A specific function or logic (unit test)
-  - Generate tests for all features
+  - A user scenario (component test — what users see and do)
+  - Edge cases for logic (unit test — what developers calculate)
+  - Both for a feature (component + unit tests)
 ```
 
 ## MANDATORY: Fixture System
@@ -58,7 +67,7 @@ options:
 
 ---
 
-## Route A: Feature flow (acceptance test)
+## Route A: Component test — what users see and do
 
 ### What to generate
 
@@ -130,26 +139,44 @@ class _HasChildWithText extends Matcher {
 
 ---
 
-## Route B: Unit test
+## Route B: Unit test — what developers calculate
 
-For pure logic (calculations, transformations, business rules).
+For pure logic (calculations, transformations, validation, formatting).
 
-Use `parameterizedTest` for variations:
+Always use **typed test cases** — no raw `params[0] as double`:
 
 ```dart
 import 'package:test/test.dart';
 import 'package:valenty_test/valenty_test.dart';
 
-parameterizedTest('calculates discount', [
-  [100.0, 0.10, 90.0],
-  [100.0, 0.25, 75.0],
-  [200.0, 0.0, 200.0],
-], (params) {
-  final price = params[0] as double;
-  final rate = params[1] as double;
-  final expected = params[2] as double;
-  expect(applyDiscount(price, rate), equals(expected));
+class DiscountCase extends TestCase {
+  final double price;
+  final double rate;
+  final double expected;
+  const DiscountCase({
+    required this.price,
+    required this.rate,
+    required this.expected,
+  });
+  @override
+  String get label => '${rate * 100}% off \$$price = \$$expected';
+}
+
+typedParameterizedTest('calculates discount', [
+  DiscountCase(price: 100, rate: 0.10, expected: 90),
+  DiscountCase(price: 100, rate: 0.25, expected: 75),
+  DiscountCase(price: 200, rate: 0.0, expected: 200),
+  DiscountCase(price: 200, rate: 1.0, expected: 0),
+], (c) {
+  expect(applyDiscount(c.price, c.rate), equals(c.expected));
 });
+```
+
+**Always create a TestCase class** for each domain concept being tested.
+The `label` getter makes test output readable:
+```
+calculates discount [case 1: 10.0% off $100.0 = $90.0]  ✓
+calculates discount [case 4: 100.0% off $200.0 = $0.0]  ✓
 ```
 
 Manual fakes only — no mocktail/mockito:
