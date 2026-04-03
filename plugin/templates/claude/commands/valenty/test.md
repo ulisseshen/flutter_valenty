@@ -169,22 +169,51 @@ class FakeExpenseRepo implements ExpenseRepository {
 
 ---
 
-## Final: Run and offer to go deeper
+## Final: Run, review, and offer to go deeper
+
+### Run tests
 
 ```bash
 dart run valenty_test:failed_tests valenty
 ```
 
-This runs all valenty tests and returns ONLY failures — saves context when there are thousands of tests.
+This returns ONLY failures — saves context when there are thousands of tests.
 
-Then AskUserQuestion (multiSelect):
+### Auto-review what was generated
+
+After tests pass, spawn **2 agents in parallel** to review the generated code:
+
 ```
-question: "Tests passing. Want to go deeper?"
+Agent(
+  description="Review generated test names",
+  prompt="Review test names in test/valenty/scenarios/. REJECT any that mention
+  method names, class names, or are vague. For each bad name, provide the fix.
+  Output a table: File | Current | Suggested."
+)
+
+Agent(
+  description="Review generated fixtures/stubs",
+  prompt="Review test/valenty/dsl/ and test/mocks/fixtures/. Check:
+  1. No inline test data in scenario files
+  2. Fixtures are deterministic (no DateTime.now)
+  3. BackendStub has matching restore() for every apply()
+  4. Finders in UiDriver are reusable (not duplicated)
+  Output issues found with fixes."
+)
+```
+
+Apply any fixes from the review agents.
+
+### Ask about going deeper
+
+AskUserQuestion (multiSelect):
+```
+question: "Tests passing and reviewed. Want to go deeper?"
 options:
-  - Add failure scenarios
-  - Add edge cases
+  - Add failure scenarios (network errors, validation, permissions)
+  - Add edge cases (empty inputs, boundary values, special chars)
   - Add parameterized variations
-  - Review test quality
+  - Run full quality review (/valenty:review)
 ```
 
 Repeat until user is done.
