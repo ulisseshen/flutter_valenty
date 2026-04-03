@@ -17,10 +17,10 @@ Write tests using Valenty's two test types:
 
 - **Component tests** (valentyTest) — validate what users SEE and DO.
   Written in domain language. Test the full app with faked externals.
-- **Unit tests** (typedParameterizedTest) — cover what developers CALCULATE.
-  Written with typed cases. Test pure logic with edge case variations.
+- **Unit tests** (typedParameterizedTest) — cover business RULES from the developer's perspective.
+  Written with typed cases. Test logic, validations, formatting, and edge cases.
 
-Component tests catch bugs users hit. Unit tests catch bugs developers miss.
+Component tests catch bugs users hit. Unit tests catch rules developers define.
 </objective>
 
 <process>
@@ -37,7 +37,7 @@ Otherwise, use **AskUserQuestion**:
 question: "What would you like to test?"
 options:
   - A user scenario (component test — what users see and do)
-  - Edge cases for logic (unit test — what developers calculate)
+  - Business rules and edge cases (unit test — rules developers define)
   - Both for a feature (component + unit tests)
 ```
 
@@ -139,9 +139,9 @@ class _HasChildWithText extends Matcher {
 
 ---
 
-## Route B: Unit test — what developers calculate
+## Route B: Unit test — business rules from the developer's perspective
 
-For pure logic (calculations, transformations, validation, formatting).
+For business rules: calculations, validations, formatting, eligibility, state transitions, parsing.
 
 Always use **typed test cases** — no raw `params[0] as double`:
 

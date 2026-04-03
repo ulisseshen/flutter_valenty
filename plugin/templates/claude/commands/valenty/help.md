@@ -10,7 +10,7 @@ Output the following reference. Do NOT add project-specific analysis or suggesti
 **Valenty** — AI-powered testing for Flutter apps using the Modern Test Pyramid.
 
 - **Component tests** validate what users see and do (`valentyTest`)
-- **Unit tests** cover what developers calculate (`typedParameterizedTest`)
+- **Unit tests** cover business rules from the developer's perspective (`typedParameterizedTest`)
 
 ## Commands
 
@@ -34,7 +34,7 @@ Output the following reference. Do NOT add project-specific analysis or suggesti
 valentyTest('shows error when payment fails', ...);
 ```
 
-**Unit test** — cover edge cases:
+**Unit test** — cover business rules:
 ```dart
 typedParameterizedTest('calculates discount', [
   DiscountCase(price: 100, rate: 0.10, expected: 90),
