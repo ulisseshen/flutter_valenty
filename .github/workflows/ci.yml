@@ -15,7 +15,7 @@ jobs:
 
       - uses: dart-lang/setup-dart@v1
         with:
-          sdk: "stable"
+          sdk: "3.11.0"
 
       - name: Install Melos
         run: dart pub global activate melos
