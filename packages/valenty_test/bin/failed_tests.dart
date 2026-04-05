@@ -405,12 +405,7 @@ String _extractCompileErrors(String stderr) {
   final result = buffer.toString().trim();
   if (result.isEmpty) {
     final tail = lines.length > 15 ? lines.sublist(lines.length - 15) : lines;
-    return tail
-        .map((
-          l,
-        ) =>
-            '  $l')
-        .join('\n');
+    return tail.map((l) => '  $l').join('\n');
   }
   return result;
 }
