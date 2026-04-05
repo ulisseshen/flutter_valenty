@@ -1,0 +1,61 @@
+name: Publish to pub.dev
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "packages/valenty_test/**"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: "3.5.0"
+
+      - name: Check if version changed
+        id: version-check
+        working-directory: packages/valenty_test
+        run: |
+          CURRENT_VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //')
+          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+
+          # Check if this version already exists on pub.dev
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://pub.dev/api/packages/valenty_test/versions/$CURRENT_VERSION")
+          if [ "$HTTP_STATUS" = "200" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "::notice::Version $CURRENT_VERSION already published — skipping"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "::notice::Version $CURRENT_VERSION is new — will publish"
+          fi
+
+      - name: Install dependencies
+        if: steps.version-check.outputs.exists == 'false'
+        working-directory: packages/valenty_test
+        run: dart pub get
+
+      - name: Run tests
+        if: steps.version-check.outputs.exists == 'false'
+        working-directory: packages/valenty_test
+        run: dart test
+
+      - name: Dry run
+        if: steps.version-check.outputs.exists == 'false'
+        working-directory: packages/valenty_test
+        run: dart pub publish --dry-run
+
+      - name: Setup pub credentials
+        if: steps.version-check.outputs.exists == 'false'
+        run: |
+          mkdir -p $HOME/.config/dart
+          echo '${{ secrets.PUB_CREDENTIALS }}' > $HOME/.config/dart/pub-credentials.json
+
+      - name: Publish to pub.dev
+        if: steps.version-check.outputs.exists == 'false'
+        working-directory: packages/valenty_test
+        run: dart pub publish --force
