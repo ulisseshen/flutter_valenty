@@ -294,7 +294,8 @@ class BuilderValidator {
 
       // Check if this is a DomainObjectBuilder in given phase
       final extendsDomainBuilder = RegExp(
-          r'class\s+(\w+)\s+extends\s+DomainObjectBuilder\s*<\s*NeedsWhen\s*>',);
+        r'class\s+(\w+)\s+extends\s+DomainObjectBuilder\s*<\s*NeedsWhen\s*>',
+      );
       final domainMatch = extendsDomainBuilder.firstMatch(content);
 
       if (domainMatch != null) {
@@ -446,7 +447,8 @@ class BuilderValidator {
 
       // Check if this is a DomainObjectBuilder in when phase
       final extendsDomainBuilder = RegExp(
-          r'class\s+(\w+)\s+extends\s+DomainObjectBuilder\s*<\s*NeedsThen\s*>',);
+        r'class\s+(\w+)\s+extends\s+DomainObjectBuilder\s*<\s*NeedsThen\s*>',
+      );
       final domainMatch = extendsDomainBuilder.firstMatch(content);
 
       if (domainMatch != null) {

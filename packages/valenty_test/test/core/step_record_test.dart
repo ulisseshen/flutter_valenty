@@ -29,12 +29,15 @@ void main() {
     });
 
     test('all StepPhase values are accessible', () {
-      expect(StepPhase.values, containsAll([
-        StepPhase.given,
-        StepPhase.when,
-        StepPhase.then,
-        StepPhase.and,
-      ]),);
+      expect(
+        StepPhase.values,
+        containsAll([
+          StepPhase.given,
+          StepPhase.when,
+          StepPhase.then,
+          StepPhase.and,
+        ]),
+      );
     });
   });
 }

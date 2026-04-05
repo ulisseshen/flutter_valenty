@@ -134,10 +134,13 @@ class TestOrderThenBuilder extends ThenBuilder {
   TestOrderThenBuilder(super.scenario);
 
   TestOrderThenTerminal shouldSucceed() {
-    final next = registerAssertion((ctx) {
-      final order = ctx.get<Order>('order');
-      expect(order.success, isTrue);
-    }, description: 'should succeed',);
+    final next = registerAssertion(
+      (ctx) {
+        final order = ctx.get<Order>('order');
+        expect(order.success, isTrue);
+      },
+      description: 'should succeed',
+    );
     return TestOrderThenTerminal(next);
   }
 
@@ -246,32 +249,38 @@ void main() {
 
     test('context flows from given through when to then', () async {
       final scenario = ScenarioBuilder.create('context flow test')
-          .addStep<NeedsWhen>(StepRecord(
-            phase: StepPhase.given,
-            action: (ctx) =>
-                ctx.set('product', Product(name: 'Test', unitPrice: 10.00)),
-          ),)
-          .addStep<NeedsThen>(StepRecord(
-            phase: StepPhase.when,
-            action: (ctx) {
-              final product = ctx.get<Product>('product');
-              ctx.set(
-                'order',
-                Order(
-                  quantity: 3,
-                  basePrice: product.unitPrice * 3,
-                  success: true,
-                ),
-              );
-            },
-          ),)
-          .addStep<ReadyToRun>(StepRecord(
-            phase: StepPhase.then,
-            action: (ctx) {
-              final order = ctx.get<Order>('order');
-              expect(order.basePrice, 30.00);
-            },
-          ),);
+          .addStep<NeedsWhen>(
+            StepRecord(
+              phase: StepPhase.given,
+              action: (ctx) =>
+                  ctx.set('product', Product(name: 'Test', unitPrice: 10.00)),
+            ),
+          )
+          .addStep<NeedsThen>(
+            StepRecord(
+              phase: StepPhase.when,
+              action: (ctx) {
+                final product = ctx.get<Product>('product');
+                ctx.set(
+                  'order',
+                  Order(
+                    quantity: 3,
+                    basePrice: product.unitPrice * 3,
+                    success: true,
+                  ),
+                );
+              },
+            ),
+          )
+          .addStep<ReadyToRun>(
+            StepRecord(
+              phase: StepPhase.then,
+              action: (ctx) {
+                final order = ctx.get<Order>('order');
+                expect(order.basePrice, 30.00);
+              },
+            ),
+          );
 
       await ScenarioRunner.execute(scenario);
     });

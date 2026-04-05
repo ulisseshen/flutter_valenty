@@ -19,7 +19,8 @@ String generateDomainObjectBuilder({
   final withMethods = StringBuffer();
   for (final field in model.fields) {
     withMethods.writeln(
-        '  $className with${field.pascalCase}(${field.type} ${field.name}) {',);
+      '  $className with${field.pascalCase}(${field.type} ${field.name}) {',
+    );
     withMethods.writeln('    _${field.name} = ${field.name};');
     withMethods.writeln('    return this;');
     withMethods.writeln('  }');

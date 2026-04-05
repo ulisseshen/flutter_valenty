@@ -117,7 +117,9 @@ void main(List<String> args) async {
   await process.stdout
       .transform(utf8.decoder)
       .transform(const LineSplitter())
-      .forEach((line,) {
+      .forEach((
+    line,
+  ) {
     final trimmed = line.trim();
     if (trimmed.isEmpty || !trimmed.startsWith('{')) return;
 
@@ -188,15 +190,16 @@ void main(List<String> args) async {
                 testErrors.map((e) => e['error'] as String).join('\n');
             final stackTrace =
                 testErrors.map((e) => e['stackTrace'] as String).join('\n');
-            final isFailure =
-                testErrors.any((e) => e['isFailure'] == true);
-            failures.add(_Failure(
-              test: test,
-              suite: suite ?? _Suite(id: -1, path: 'unknown'),
-              error: errorMsg,
-              stackTrace: stackTrace,
-              isFailure: isFailure,
-            ),);
+            final isFailure = testErrors.any((e) => e['isFailure'] == true);
+            failures.add(
+              _Failure(
+                test: test,
+                suite: suite ?? _Suite(id: -1, path: 'unknown'),
+                error: errorMsg,
+                stackTrace: stackTrace,
+                isFailure: isFailure,
+              ),
+            );
           }
         }
     }
@@ -348,10 +351,12 @@ void _printSummary({
       final stackLines = f.stackTrace
           .split('\n')
           .where((l) => l.trim().isNotEmpty)
-          .where((l) =>
-              !l.contains('package:test/') &&
-              !l.contains('package:test_api/') &&
-              !l.contains('dart:async'),)
+          .where(
+            (l) =>
+                !l.contains('package:test/') &&
+                !l.contains('package:test_api/') &&
+                !l.contains('dart:async'),
+          )
           .take(8)
           .toList();
       if (stackLines.isNotEmpty) {
@@ -391,9 +396,7 @@ String _extractCompileErrors(String stderr) {
     if (collecting) {
       buffer.writeln('  $line');
       count++;
-      if (count > 5 &&
-          !line.contains('Error:') &&
-          !line.contains('error:')) {
+      if (count > 5 && !line.contains('Error:') && !line.contains('error:')) {
         collecting = false;
       }
     }
@@ -402,7 +405,12 @@ String _extractCompileErrors(String stderr) {
   final result = buffer.toString().trim();
   if (result.isEmpty) {
     final tail = lines.length > 15 ? lines.sublist(lines.length - 15) : lines;
-    return tail.map((l,) => '  $l').join('\n');
+    return tail
+        .map((
+          l,
+        ) =>
+            '  $l')
+        .join('\n');
   }
   return result;
 }

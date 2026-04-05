@@ -9,10 +9,13 @@ class _TestAssertionBuilder extends AssertionBuilder {
   _TestAssertionBuilder(super.scenario);
 
   _TestAssertionBuilder hasValue(String expected) {
-    addAssertionStep((ctx) {
-      final actual = ctx.get<String>('value');
-      expect(actual, equals(expected));
-    }, description: 'has value $expected',);
+    addAssertionStep(
+      (ctx) {
+        final actual = ctx.get<String>('value');
+        expect(actual, equals(expected));
+      },
+      description: 'has value $expected',
+    );
     return this;
   }
 }

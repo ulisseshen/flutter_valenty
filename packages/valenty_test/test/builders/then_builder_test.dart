@@ -9,9 +9,12 @@ class _TestThenBuilder extends ThenBuilder {
   _TestThenBuilder(super.scenario);
 
   ScenarioBuilder<ReadyToRun> shouldSucceed() {
-    return registerAssertion((ctx) {
-      expect(ctx.get<bool>('success'), isTrue);
-    }, description: 'should succeed',);
+    return registerAssertion(
+      (ctx) {
+        expect(ctx.get<bool>('success'), isTrue);
+      },
+      description: 'should succeed',
+    );
   }
 }
 
