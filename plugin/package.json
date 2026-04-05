@@ -1,0 +1,29 @@
+{
+  "name": "valenty-tester",
+  "version": "0.1.0",
+  "description": "Install Valenty test-writing commands for Claude Code, Antigravity, Cursor, and Codex",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ulisseshen/flutter_valenty"
+  },
+  "bin": {
+    "valenty-tester": "bin/install.mjs"
+  },
+  "type": "module",
+  "keywords": [
+    "valenty",
+    "testing",
+    "flutter",
+    "claude-code",
+    "antigravity",
+    "cursor",
+    "ai",
+    "component-testing"
+  ],
+  "files": [
+    "bin/",
+    "templates/",
+    "shared/"
+  ]
+}

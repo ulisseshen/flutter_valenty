@@ -10,6 +10,10 @@ topics:
   - dsl
   - clean-architecture
 
+executables:
+  failed_tests:
+    # Usage: dart run valenty_test:failed_tests [scope] [path]
+
 environment:
   sdk: ^3.5.0
 
