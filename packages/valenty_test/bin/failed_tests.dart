@@ -196,7 +196,7 @@ void main(List<String> args) async {
               error: errorMsg,
               stackTrace: stackTrace,
               isFailure: isFailure,
-            ));
+            ),);
           }
         }
     }
@@ -351,7 +351,7 @@ void _printSummary({
           .where((l) =>
               !l.contains('package:test/') &&
               !l.contains('package:test_api/') &&
-              !l.contains('dart:async'))
+              !l.contains('dart:async'),)
           .take(8)
           .toList();
       if (stackLines.isNotEmpty) {
